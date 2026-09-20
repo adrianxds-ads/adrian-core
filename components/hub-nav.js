@@ -3,7 +3,7 @@
   window.__ADRIAN_HUB_NAV__=true;
 
   const HUB_URL='https://adrianxds-ads.github.io/adrian-hub/';
-  const CHATGPT_DEFAULT='https://chatgpt.com/';
+  const CHATGPT_DEFAULT=HUB_URL+'chatgpt.html';
   const READ_KEY='adrian_readable_large_v1';
   const CHATGPT_KEY='adrian_chatgpt_hub_url';
   const TECH_SCHEMA='ADRIAN_TECH_HANDOFF_V1';
@@ -52,10 +52,8 @@
     return 'unknown';
   }
   function chatgptUrl(){
-    try{
-      const saved=localStorage.getItem(CHATGPT_KEY);
-      if(saved&&/^https:\/\/chatgpt\.com\//i.test(saved))return saved;
-    }catch(e){}
+    const onHub=location.hostname==='adrianxds-ads.github.io'&&location.pathname.startsWith('/adrian-hub');
+    if(onHub){try{const saved=localStorage.getItem(CHATGPT_KEY);if(saved&&/^https:\/\/chatgpt\.com\//i.test(saved))return saved;}catch(e){}}
     return CHATGPT_DEFAULT;
   }
   function setChatgptUrl(url){
@@ -201,12 +199,12 @@
     const onHub=location.hostname==='adrianxds-ads.github.io'&&location.pathname.startsWith('/adrian-hub');
     box.innerHTML=(onHub?'':'<a class="adrian-hub-nav" href="'+HUB_URL+'" aria-label="Volver a Adrián Hub"><span aria-hidden="true">⌂</span><span class="adrian-hub-nav__label">Hub</span></a>')+
       '<button class="adrian-text-toggle" type="button" aria-label="Cambiar tamaño de texto">A+</button>'+
-      '<button class="adrian-tech-button" type="button" aria-label="Copiar JSON técnico y abrir ChatGPT" title="JSON técnico → ChatGPT">AI</button>';
+      '<button class="adrian-tech-button" type="button" aria-label="Copiar JSON técnico y abrir ChatGPT Hub" title="Copiar JSON técnico → ChatGPT Hub">JSON</button>';
     document.body.appendChild(box);
     box.querySelector('.adrian-text-toggle').onclick=()=>{large=!large;try{localStorage.setItem(READ_KEY,large?'1':'0');}catch(e){}applyReadability();};
     box.querySelector('.adrian-tech-button').onclick=copyTechnicalAndOpen;
     const status=document.querySelector('#chatgptHubLinkStatus');
-    const refreshStatus=()=>{if(status)status.textContent=chatgptUrl()===CHATGPT_DEFAULT?'ChatGPT abierto · enlace directo al proyecto pendiente':'Proyecto Hub enlazado';};
+    const refreshStatus=()=>{if(status){let saved='';try{saved=localStorage.getItem(CHATGPT_KEY)||'';}catch(e){}status.textContent=/^https:\/\/chatgpt\.com\//i.test(saved)?'Proyecto Hub enlazado · todas las apps usarán este acceso':'Falta vincular una vez la URL exacta del proyecto Hub';}};
     const openBtn=document.querySelector('#openChatgptHubBtn');if(openBtn)openBtn.onclick=openChatgptHub;
     const setBtn=document.querySelector('#setChatgptHubUrlBtn');if(setBtn)setBtn.onclick=()=>{const current=chatgptUrl()===CHATGPT_DEFAULT?'':chatgptUrl();const url=prompt('Pega la URL exacta del proyecto Hub de ChatGPT',current);if(url===null)return;if(setChatgptUrl(url)){refreshStatus();setBtn.textContent='ENLACE GUARDADO';setTimeout(()=>setBtn.textContent='VINCULAR PROYECTO',1400);}else{setBtn.textContent='URL NO VÁLIDA';setTimeout(()=>setBtn.textContent='VINCULAR PROYECTO',1400);}};
     const copyBtn=document.querySelector('#copyHubTechBtn');if(copyBtn)copyBtn.onclick=async()=>{const r=await copyTechnicalJson();copyBtn.textContent=r.ok?'JSON TÉCNICO COPIADO':'NO SE PUDO COPIAR';setTimeout(()=>copyBtn.textContent='COPIAR JSON TÉCNICO',1400);};
