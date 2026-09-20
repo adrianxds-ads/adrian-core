@@ -1,9 +1,9 @@
 (function(){
 if(window.AdrianKeyboard)return;
 const layouts={
- en:"ABCDEFGHIJKLMNOPQRSTUVWXYZ'-",
- ca:"ABCDEFGHIJKLMNOPQRSTUVWXYZÇ·’ÀÈÉÍÏÒÓÚÜ",
- es:"ABCDEFGHIJKLMNOPQRSTUVWXYZÑÁÉÍÓÚÜ¿?"
+ en:[["Q","W","E","R","T","Y","U","I","O","P"],["A","S","D","F","G","H","J","K","L"],["Z","X","C","V","B","N","M"],["'","-"]],
+ ca:[["Q","W","E","R","T","Y","U","I","O","P"],["A","S","D","F","G","H","J","K","L"],["Z","X","C","V","B","N","M"],["À","È","É","Í","Ï","Ò"],["Ó","Ú","Ü","Ç","·","’"]],
+ es:[["Q","W","E","R","T","Y","U","I","O","P"],["A","S","D","F","G","H","J","K","L"],["Z","X","C","V","B","N","M"],["Á","É","Í","Ó","Ú","Ü","Ñ","¿","?"]]
 };
 let active=null,lang='en',root=null,activeInputHandler=null;
 const css=`
@@ -16,7 +16,7 @@ const css=`
 .ad-keyboard-preview-value.empty{color:#75868b;font-weight:800}
 .ad-keyboard-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 auto 9px;width:min(760px,100%);color:#b8c6c8;font:800 14px/1.2 system-ui}
 .ad-keyboard-head b{color:#f3f7f8;font-size:16px;letter-spacing:.04em}.ad-keyboard-head span{font-size:12px;text-align:right}
-.ad-keyboard-row{width:min(760px,100%);margin:6px auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.ad-keyboard-row{width:min(760px,100%);margin:6px auto;display:grid;grid-template-columns:repeat(var(--ad-key-cols,10),minmax(0,1fr));gap:6px}.ad-keyboard-row[data-row="1"]{width:min(684px,90%)}.ad-keyboard-row[data-row="2"]{width:min(532px,72%)}.ad-keyboard-row[data-special-row="true"]{width:min(650px,92%)}
 .ad-key{min-width:0;min-height:60px;border:1px solid rgba(255,255,255,.18);border-radius:13px;color:#fff;font:950 31px/1 system-ui;box-shadow:inset 0 1px rgba(255,255,255,.08),inset 0 -3px rgba(0,0,0,.18);touch-action:manipulation;transition:transform .05s ease,filter .06s ease}
 .ad-keyboard-row-0 .ad-key{background:#405582}.ad-keyboard-row-1 .ad-key{background:#1f6264}.ad-keyboard-row-2 .ad-key{background:#4f6f43}.ad-keyboard-row-3 .ad-key{background:#77531f}.ad-keyboard-row-4 .ad-key{background:#74405a}.ad-keyboard-row-5 .ad-key{background:#5b4680}
 .ad-key[data-special="true"]{background:#9a741d!important;color:#fff8dd;border-color:rgba(255,226,138,.48)}
@@ -29,7 +29,6 @@ body.ad-keyboard-open{padding-bottom:calc(var(--ad-keyboard-height,430px) + 18px
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 
 function ensure(){if(root)return root;root=document.createElement('section');root.className='ad-keyboard';root.setAttribute('aria-label','Teclado Adrián');document.body.appendChild(root);return root;}
-function chunks(s,n=6){const a=[];for(let i=0;i<s.length;i+=n)a.push([...s.slice(i,i+n)]);return a;}
 function isSpecial(k){return /[^A-Z]/.test(k);}
 function previewEl(){return root?.querySelector('.ad-keyboard-preview-value')||null;}
 function updatePreview(){
@@ -40,12 +39,12 @@ function updatePreview(){
  requestAnimationFrame(()=>{el.scrollLeft=el.scrollWidth;});
 }
 function render(){
- const el=ensure(),rows=chunks(layouts[lang]||layouts.en,6);
+ const el=ensure(),rows=layouts[lang]||layouts.en;
  el.innerHTML='<div class="ad-keyboard-preview"><small>ESCRIBIENDO</small><span class="ad-keyboard-preview-value"></span></div>'+
- '<div class="ad-keyboard-head"><b>TECLADO · '+lang.toUpperCase()+'</b><span>Teclas grandes · sin sugerencias</span></div>'+
- rows.map((row,i)=>'<div class="ad-keyboard-row ad-keyboard-row-'+i+'">'+row.map(k=>'<button class="ad-key" type="button" data-char="'+k.replace(/"/g,'&quot;')+'" data-special="'+String(isSpecial(k))+'">'+k+'</button>').join('')+'</div>').join('')+
+ '<div class="ad-keyboard-head"><b>TECLADO · '+lang.toUpperCase()+'</b><span>QWERTY · MAYÚSCULAS · sin sugerencias</span></div>'+
+ rows.map((row,i)=>{const specialRow=row.every(isSpecial),specialWidth=specialRow?';max-width:'+Math.min(650,row.length*74)+'px':'';return '<div class="ad-keyboard-row ad-keyboard-row-'+i+'" data-row="'+i+'" data-special-row="'+String(specialRow)+'" style="--ad-key-cols:'+row.length+specialWidth+'">'+row.map(k=>'<button class="ad-key" type="button" data-char="'+k.replace(/"/g,'&quot;')+'" data-special="'+String(isSpecial(k))+'">'+k+'</button>').join('')+'</div>';}).join('')+
  '<div class="ad-keyboard-controls"><button class="ad-key control space" type="button" data-action="space">ESPACIO</button><button class="ad-key control back" type="button" data-action="back">⌫</button><button class="ad-key control next" type="button" data-action="next">SIG.</button><button class="ad-key control close" type="button" data-action="close">CERRAR</button></div>';
- el.querySelectorAll('[data-char]').forEach(b=>b.onclick=()=>{try{navigator.vibrate?.(8);}catch(e){}insert(b.dataset.char.toLocaleLowerCase(lang==='ca'?'ca':lang==='es'?'es':'en'));});
+ el.querySelectorAll('[data-char]').forEach(b=>b.onclick=()=>{try{navigator.vibrate?.(8);}catch(e){}insert(b.dataset.char.toLocaleUpperCase(lang==='ca'?'ca':lang==='es'?'es':'en'));});
  el.querySelector('[data-action="space"]').onclick=()=>insert(' ');
  el.querySelector('[data-action="back"]').onclick=backspace;
  el.querySelector('[data-action="next"]').onclick=next;
@@ -85,9 +84,9 @@ function detachActiveHandler(){if(active&&activeInputHandler){active.removeEvent
 function open(el){
  if(active!==el)detachActiveHandler();
  active=el;lang=el.dataset.adKeyboard||'en';
- el.setAttribute('inputmode','none');el.setAttribute('autocomplete','off');el.setAttribute('autocorrect','off');el.setAttribute('autocapitalize','none');el.setAttribute('spellcheck','false');
+ el.setAttribute('inputmode','none');el.setAttribute('autocomplete','off');el.setAttribute('autocorrect','off');el.setAttribute('autocapitalize','characters');el.setAttribute('spellcheck','false');
  render();root.classList.add('open');document.body.classList.add('ad-keyboard-open');
- activeInputHandler=()=>{updatePreview();settleVisibility();};active.addEventListener('input',activeInputHandler);
+ activeInputHandler=()=>{const s=active.selectionStart??active.value.length,e=active.selectionEnd??s,upper=String(active.value||'').toLocaleUpperCase(lang==='ca'?'ca':lang==='es'?'es':'en');if(active.value!==upper){active.value=upper;active.setSelectionRange?.(s,e);}updatePreview();settleVisibility();};active.addEventListener('input',activeInputHandler);
  requestAnimationFrame(()=>{const h=root.getBoundingClientRect().height;document.documentElement.style.setProperty('--ad-keyboard-height',h+'px');settleVisibility();});
  el.focus({preventScroll:true});
 }
