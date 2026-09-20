@@ -1,0 +1,8 @@
+*{box-sizing:border-box}
+html{background:var(--ad-bg);color:var(--ad-text);font-family:var(--ad-font)}
+body{margin:0;background:var(--ad-bg);color:var(--ad-text)}
+button,a{font:inherit}
+.ad-card{background:var(--ad-surface);border:1px solid var(--ad-border);border-radius:var(--ad-radius-md);box-shadow:var(--ad-shadow)}
+.ad-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border:1px solid var(--ad-border);border-radius:var(--ad-radius-sm);background:var(--ad-surface-strong);color:var(--ad-text);text-decoration:none;font-weight:700}
+.ad-button:hover{filter:brightness(1.08)}
+.ad-muted{color:var(--ad-text-muted)}

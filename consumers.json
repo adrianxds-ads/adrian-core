@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "source": "adrian-core",
+  "consumers": [
+    {"id":"english","path":"C:\\Users\\adria\\adaptive-english"},
+    {"id":"catala","path":"C:\\Users\\adria\\adaptive-verbs-catala"},
+    {"id":"hoti0108","path":"C:\\Users\\adria\\adaptive-hoti0108"}
+  ],
+  "managedFiles": [
+    {"source":"design/adrian-visual-system.js","target":"adrian-visual-system.js"}
+  ]
+}
