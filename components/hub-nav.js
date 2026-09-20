@@ -11,7 +11,7 @@
   const recentErrors=[];
 
   const css=`
-  .adrian-tools{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));z-index:2147483000;display:flex;gap:7px;align-items:center}
+  .adrian-tools{position:sticky;top:0;left:0;z-index:2147483000;box-sizing:border-box;width:100%;min-height:52px;display:flex;gap:8px;align-items:center;justify-content:flex-start;padding:max(6px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(8,16,19,.97),rgba(8,16,19,.90));border-bottom:1px solid rgba(255,255,255,.10);box-shadow:0 6px 18px rgba(0,0,0,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .adrian-hub-nav,.adrian-text-toggle,.adrian-tech-button{min-height:44px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(9,17,20,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,.28);color:#f3f7f8!important;font:850 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif;text-decoration:none!important}
   .adrian-hub-nav{display:inline-flex;align-items:center;gap:7px;padding:0 14px}.adrian-text-toggle,.adrian-tech-button{min-width:50px;padding:0 12px;cursor:pointer}
   .adrian-text-toggle[aria-pressed="true"]{background:#4AA7C8;color:#071014!important;border-color:#96CCDF}
