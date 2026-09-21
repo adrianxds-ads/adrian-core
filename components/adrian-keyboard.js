@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.AdrianKeyboard)return;
-const VERSION='4.0.0';
+const VERSION='4.0.1';
 const alphaLayouts={
  en:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['Z','X','C','V','B','N','M']],
  es:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L','Ñ'],['Z','X','C','V','B','N','M']],
@@ -15,7 +15,7 @@ const accentMap={
 const numberRows=[['1','2','3','4','5'],['6','7','8','9','0'],['@','#','€','%','&','+','=','-']];
 let active=null,root=null,lang='es',mode='alpha',activeInputHandler=null,longTimer=null,longTriggered=false,popover=null;
 const css=`
-.ad-keyboard{position:fixed;left:0;right:0;bottom:0;z-index:2147482000;display:none;background:#0b1417;border-top:1px solid rgba(255,255,255,.17);box-shadow:0 -14px 40px rgba(0,0,0,.34);padding:5px max(4px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.ad-keyboard{position:fixed;left:0;right:0;bottom:0;z-index:2147483500;display:none;background:#0b1417;border-top:1px solid rgba(255,255,255,.17);box-shadow:0 -14px 40px rgba(0,0,0,.34);padding:5px max(4px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .ad-keyboard.open{display:block}.ad-keyboard *{box-sizing:border-box}.ad-keyboard-inner{width:min(760px,100%);margin:auto}
 .ad-keyboard-top{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:34px;margin-bottom:4px}
 .ad-keyboard-langs{display:flex;gap:4px}.ad-lang,.ad-close{min-width:44px;min-height:32px;border:1px solid rgba(255,255,255,.15);border-radius:9px;background:#273238;color:#dbe4e6;font:900 12px/1 system-ui;touch-action:manipulation}
@@ -28,7 +28,7 @@ const css=`
 .ad-key:active,.ad-lang:active,.ad-close:active{filter:brightness(1.16);transform:scale(.97)}
 .ad-keyboard-controls{display:grid;grid-template-columns:.85fr .62fr 2.45fr .62fr .9fr;gap:4px;margin-top:4px}
 .ad-key.control{min-height:50px;font-size:16px;letter-spacing:.02em;border-radius:10px}.ad-key.mode{background:#66538e}.ad-key.question{background:#8b6926;color:#fff8df}.ad-key.space{background:#4aa7c8;color:#071014}.ad-key.back{background:#83363d;font-size:25px}
-.ad-accent-pop{position:fixed;z-index:2147483000;display:flex;gap:5px;padding:5px;border-radius:12px;background:#eef5f7;border:2px solid #96ccdf;box-shadow:0 10px 28px rgba(0,0,0,.38)}
+.ad-accent-pop{position:fixed;z-index:2147483600;display:flex;gap:5px;padding:5px;border-radius:12px;background:#eef5f7;border:2px solid #96ccdf;box-shadow:0 10px 28px rgba(0,0,0,.38)}
 .ad-accent-pop button{min-width:52px;min-height:52px;border:0;border-radius:9px;background:#315a9e;color:#fff;font:950 27px/1 system-ui;touch-action:manipulation}
 body.ad-keyboard-open{padding-bottom:calc(var(--ad-keyboard-height,290px) + 8px)!important}
 @media(max-width:390px){.ad-keyboard{padding-left:3px;padding-right:3px}.ad-keyboard-row{gap:2px;margin:2px auto}.ad-key{min-height:52px;font-size:29px;border-radius:9px}.ad-keyboard-controls{gap:3px}.ad-key.control{min-height:48px}.ad-keyboard-preview{font-size:11px;padding:0 4px}.ad-keyboard-preview b{font-size:13px}}
