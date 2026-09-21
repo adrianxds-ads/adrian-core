@@ -25,8 +25,9 @@ Componente maestro: `components/adrian-keyboard.js`.
 - Idiomas ES / CA / EN.
 - `Ñ` directa en español y `Ç` directa en catalán.
 - Acentos y variantes mediante pulsación larga.
-- Fila inferior fija: `123/ABC · ¿ · ESPACIO · ? · ⌫`.
-- Pantalla numérica independiente con la misma altura aproximada que la alfabética.
+- Fila inferior fija: `123/ABC · . · ESPACIO · @ · ? · ⌫`.
+- Ventana flotante de escritura, grande y separada físicamente del teclado para facilitar la lectura.
+- Pantalla numérica independiente con coma, exclamación, apóstrofo y símbolos frecuentes.
 - Sin autocorrección, sugerencias ni teclado nativo cuando un campo usa `data-ad-keyboard`.
 
-Uso: cargar `https://adrianxds-ads.github.io/adrian-core/components/adrian-keyboard.js?v=4` y añadir `data-ad-keyboard="es"`, `ca` o `en` al campo.
+Uso: cargar `https://adrianxds-ads.github.io/adrian-core/components/adrian-keyboard.js?v=410` y añadir `data-ad-keyboard="es"`, `ca` o `en` al campo.
