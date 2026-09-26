@@ -201,6 +201,66 @@
     setChatGPTProjectUrl:setChatgptUrl
   };
 
+  const GARDEN_SCRIPT=HUB_URL.replace('/adrian-hub/','/adrian-core/')+'components/github-garden.js?v=3';
+  function gardenLanding(){
+    const p=location.pathname.toLowerCase();
+    return p.endsWith('/')||p.endsWith('/index.html');
+  }
+  function gardenTarget(appId){
+    const tree=document.querySelector('#startScreen .growth-tree-section');
+    if(tree)return {node:tree,where:'after'};
+    const panel=document.querySelector('#startScreen .panel');
+    if(panel)return {node:panel,where:'append'};
+    const home=document.querySelector('#home');
+    if(home)return {node:home,where:'append'};
+    const main=document.querySelector('main.app,main.shell,main#app,main');
+    if(main)return {node:main,where:'before-footer'};
+    return null;
+  }
+  function loadGarden(){
+    if(window.AdrianGarden)return Promise.resolve(window.AdrianGarden);
+    return new Promise((resolve,reject)=>{
+      const old=document.querySelector('script[data-adrian-garden-core]');
+      if(old){old.addEventListener('load',()=>resolve(window.AdrianGarden),{once:true});old.addEventListener('error',reject,{once:true});return;}
+      const s=document.createElement('script');s.src=GARDEN_SCRIPT;s.async=true;s.dataset.adrianGardenCore='1';
+      s.onload=()=>window.AdrianGarden?resolve(window.AdrianGarden):reject(Error('Garden core unavailable'));
+      s.onerror=reject;document.head.appendChild(s);
+    });
+  }
+  function gardenBridgeStyle(){
+    if(document.getElementById('adrian-garden-bridge-style'))return;
+    const s=document.createElement('style');s.id='adrian-garden-bridge-style';s.textContent=`
+      .adrian-garden-bridge{margin:22px 0 14px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+      .adrian-garden-bridge__head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 10px}
+      .adrian-garden-bridge__head b{font:950 12px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.11em;color:#dce9e2}
+      .adrian-garden-bridge__head span{font:800 10px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;color:#8fa69b;text-align:right}
+      .adrian-garden-bridge .github-garden{min-height:250px!important;border-radius:18px!important}
+      .adrian-garden-bridge .gg-heading,.adrian-garden-bridge .gg-legend{display:none!important}.adrian-garden-bridge .gg-label{z-index:500}
+      @media(max-width:560px){.adrian-garden-bridge{margin-top:18px;padding-top:14px}.adrian-garden-bridge .github-garden{min-height:230px!important}.adrian-garden-bridge__head span{display:none}}
+    `;document.head.appendChild(s);
+  }
+  async function mountGardenBridge(){
+    const appId=detectedAppId();
+    if(appId==='hub'||appId==='unknown'||!gardenLanding()||document.getElementById('adrianGardenBridge'))return;
+    const target=gardenTarget(appId);if(!target)return;
+    gardenBridgeStyle();
+    const wrap=document.createElement('section');wrap.id='adrianGardenBridge';wrap.className='adrian-garden-bridge';
+    wrap.innerHTML='<div class="adrian-garden-bridge__head"><b>JARDÍN GITHUB</b><span>Tu planta delante · el ecosistema detrás</span></div><div id="adrianGardenView"></div>';
+    if(target.where==='after')target.node.insertAdjacentElement('afterend',wrap);
+    else if(target.where==='append')target.node.appendChild(wrap);
+    else{const footer=target.node.querySelector(':scope > footer');footer?target.node.insertBefore(wrap,footer):target.node.appendChild(wrap);}
+    try{
+      const garden=await loadGarden();
+      const render=()=>garden.mount('#adrianGardenView',{currentApp:appId,mode:'compact',navigate:true});
+      await render();
+      const level=document.querySelector('#startLevel');
+      if(level){
+        let timer=null;
+        new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(render,120);}).observe(level,{childList:true,subtree:true,characterData:true});
+      }
+    }catch(e){wrap.remove();console.warn('GitHub Garden bridge unavailable',e);}
+  }
+
   function mount(){
     if(document.querySelector('.adrian-tools'))return;
     const box=document.createElement('div');box.className='adrian-tools';
@@ -216,7 +276,7 @@
     const openBtn=document.querySelector('#openChatgptHubBtn');if(openBtn)openBtn.onclick=openChatgptHub;
     const setBtn=document.querySelector('#setChatgptHubUrlBtn');if(setBtn)setBtn.onclick=()=>{const current=chatgptUrl()===CHATGPT_DEFAULT?'':chatgptUrl();const url=prompt('Pega la URL exacta del proyecto Hub de ChatGPT',current);if(url===null)return;if(setChatgptUrl(url)){refreshStatus();setBtn.textContent='ENLACE GUARDADO';setTimeout(()=>setBtn.textContent='VINCULAR PROYECTO',1400);}else{setBtn.textContent='URL NO VÁLIDA';setTimeout(()=>setBtn.textContent='VINCULAR PROYECTO',1400);}};
     const copyBtn=document.querySelector('#copyHubTechBtn');if(copyBtn)copyBtn.onclick=async()=>{const r=await copyTechnicalJson();copyBtn.textContent=r.ok?'JSON TÉCNICO COPIADO':'NO SE PUDO COPIAR';setTimeout(()=>copyBtn.textContent='COPIAR JSON TÉCNICO',1400);};
-    refreshStatus();applyReadability();
+    refreshStatus();applyReadability();mountGardenBridge();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();

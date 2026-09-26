@@ -18,6 +18,9 @@ Aplicar: `powershell -File .\scripts\sync-consumers.ps1 -Apply`
 
 La migración de consumidores se hará de forma progresiva para no romper PWAs ya publicadas.
 
+## Jardín GitHub
+`components/github-garden.js` renderiza el jardín común y `garden/registry.json` es su registro canónico. Desde Hub Nav v7, las portadas consumidoras reciben automáticamente una perspectiva compacta: la planta de la app activa va en primer plano y el resto del ecosistema queda al fondo. Las páginas auxiliares no se modifican.
+
 ## Teclado Adrián v4
 Componente maestro: `components/adrian-keyboard.js`.
 
