@@ -44,6 +44,8 @@
   function detectedAppId(){
     const p=location.pathname.toLowerCase();
     if(p.startsWith('/adaptive-english'))return 'english';
+    if(p.startsWith('/adaptive-phrasal-verbs'))return 'phrasal-verbs';
+    if(p.startsWith('/b2-multiple-choice-cloze'))return 'b2-cloze';
     if(p.startsWith('/adaptive-exam'))return 'cambridge';
     if(p.startsWith('/adaptive-verbs-catala'))return 'catala';
     if(p.startsWith('/adaptive-hoti0108'))return 'hoti0108';
@@ -65,6 +67,8 @@
     const fallback={
       hub:{id:'hub',name:'Adrián Hub',group:'Sistema',kind:'pwa-hub',url:HUB_URL,repo:'https://github.com/adrianxds-ads/adrian-hub'},
       english:{id:'english',name:'Adaptive English',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-english/',repo:'https://github.com/adrianxds-ads/adaptive-english'},
+      'phrasal-verbs':{id:'phrasal-verbs',name:'Phrasal Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-phrasal-verbs/',repo:'https://github.com/adrianxds-ads/adaptive-phrasal-verbs'},
+      'b2-cloze':{id:'b2-cloze',name:'B2 Multiple-Choice Cloze',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/b2-multiple-choice-cloze/',repo:'https://github.com/adrianxds-ads/b2-multiple-choice-cloze'},
       cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'https://adrianxds-ads.github.io/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
       catala:{id:'catala',name:'Català · Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-verbs-catala/',repo:'https://github.com/adrianxds-ads/adaptive-verbs-catala'},
       hoti0108:{id:'hoti0108',name:'HOTI0108',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-hoti0108/',repo:'https://github.com/adrianxds-ads/adaptive-hoti0108'},
