@@ -201,7 +201,7 @@
     setChatGPTProjectUrl:setChatgptUrl
   };
 
-  const GARDEN_SCRIPT=HUB_URL.replace('/adrian-hub/','/adrian-core/')+'components/github-garden.js?v=5';
+  const GARDEN_SCRIPT=HUB_URL.replace('/adrian-hub/','/adrian-core/')+'components/github-garden.js?v=6';
   function gardenLanding(){
     const p=location.pathname.toLowerCase();
     return p.endsWith('/')||p.endsWith('/index.html');
@@ -220,10 +220,7 @@
     if(document.getElementById('adrian-garden-bridge-style'))return;
     const s=document.createElement('style');s.id='adrian-garden-bridge-style';s.textContent=`
       .adrian-plant-bridge{margin:20px 0 14px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
-      .adrian-plant-bridge__head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 9px}
-      .adrian-plant-bridge__head b{font:950 12px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.11em;color:#dce9e2}
-      .adrian-plant-bridge__head span{font:800 10px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;color:#8fa69b;text-align:right}
-      @media(max-width:560px){.adrian-plant-bridge{margin-top:17px;padding-top:13px}.adrian-plant-bridge__head span{display:none}}
+      @media(max-width:560px){.adrian-plant-bridge{margin-top:17px;padding-top:13px}}
     `;document.head.appendChild(s);
   }
   async function mountGardenBridge(){
@@ -237,7 +234,7 @@
       if(existing){
         const renderExisting=()=>garden.mountPlant(existing,appId);
         await renderExisting();
-        const obs=new MutationObserver(()=>{if(!existing.querySelector('.adrian-plant-card'))setTimeout(renderExisting,0);});
+        const obs=new MutationObserver(()=>{if(!existing.querySelector('.adrian-plant-card__plant'))setTimeout(renderExisting,0);});
         obs.observe(existing,{childList:true});
         return;
       }
@@ -245,7 +242,7 @@
       const panel=document.querySelector('#startScreen .panel'),home=document.querySelector('#home'),main=document.querySelector('main.app,main.shell,main#app,main'),target=panel||home||main;
       if(!target)return;
       const wrap=document.createElement('section');wrap.id='adrianPlantBridge';wrap.className='adrian-plant-bridge';
-      wrap.innerHTML='<div class="adrian-plant-bridge__head"><b>TU PLANTA</b><span>Progreso visual · Jardín GitHub</span></div><div id="adrianPlantView"></div>';
+      wrap.innerHTML='<div id="adrianPlantView"></div>';
       if(target===main){const footer=main.querySelector(':scope > footer');footer?main.insertBefore(wrap,footer):main.appendChild(wrap);}else target.appendChild(wrap);
       await garden.mountPlant('#adrianPlantView',appId);
     }catch(e){console.warn('GitHub Garden plant unavailable',e);}
