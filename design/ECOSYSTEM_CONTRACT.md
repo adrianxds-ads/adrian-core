@@ -5,7 +5,7 @@ Adaptive English es la aplicación matriz. Antes de diseñar una app nueva se re
 La identidad compartida incluye, cuando sea aplicable: paleta AVS, fondos oscuros, jerarquía tipográfica, tarjetas, botones, bordes, sombras, navegación, pantallas de pregunta y resultado, indicadores, medallas, animaciones, transiciones, sonidos y filosofía de interacción. Compartir identidad no obliga a copiar literalmente la interfaz: cada app puede adaptar la composición a su contenido.
 
 ## Jardín GitHub
-El jardín es una identidad transversal, no una base de datos estadística común. Cada aplicación tiene una especie distinta y una posición estable. La app activa se presenta en primer plano y las demás forman el paisaje. Las plantas sin métrica de progreso válida permanecen como semillas; nunca se fabrican puntos.
+El jardín es una identidad transversal, no una base de datos estadística común. Cada aplicación tiene una especie distinta y una posición estable. El jardín completo vive en el Hub como capa lúdica secundaria; dentro de cada aplicación se muestra únicamente su propia planta. Las plantas sin métrica de progreso válida permanecen como semillas; nunca se fabrican puntos.
 
 El sistema se diseña para 10.000 niveles, 50 niveles por hito y 200 hitos. Las piezas vegetales son deterministas y persistentes: una rama existente no desaparece en la fase siguiente. La forma adulta no se muestra anticipadamente.
 

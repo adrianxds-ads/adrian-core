@@ -10,7 +10,7 @@ El Jardín GitHub es la capa vegetal común del ecosistema Adrián Hub.
 - Máximo: 200 hitos visibles.
 - El crecimiento es determinista: una etapa nueva añade piezas y nunca sustituye las anteriores.
 - La posición de cada especie es estable.
-- La app activa puede colocarse en primer plano sin alterar la posición canónica del jardín.
+- El jardín completo conserva posiciones canónicas en el Hub; las aplicaciones consumen una vista individual de su especie.
 
 ## Progreso
 Nunca se inventa progreso para llenar el jardín.
@@ -19,9 +19,9 @@ Actualmente conectadas a un LEVEL acumulativo real:
 - Adaptive English.
 - B2 Multiple-Choice Cloze.
 - Català · Verbs.
+- Phrasal Verbs: el crecimiento usa niveles/sesiones completados acumulativos; la dificultad adaptativa 1–15 permanece separada.
 
 Registradas como semilla hasta definir una métrica legítima:
-- Phrasal Verbs: su level actual es dificultad reversible 1–15.
 - Cambridge B2.
 - HOTI0108.
 - Entrenamiento 2.0.
@@ -37,4 +37,6 @@ Su Practice Tree existente es legacy estable y no se reemplaza. El Jardín reuti
 `AdrianGarden.growthStage(level)` aplica la regla común 50 → 1 hito.
 
 ## Regla
-Un ecosistema → un jardín → muchas perspectivas.
+Un ecosistema → un jardín completo en el Hub → una planta propia dentro de cada aplicación.
+
+El jardín completo es una capa lúdica secundaria y no debe competir con la función principal del Hub. Las aplicaciones individuales muestran únicamente su especie; Adaptive English conserva su Practice Tree existente.
