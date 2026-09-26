@@ -49,6 +49,8 @@
     if(p.startsWith('/adaptive-exam'))return 'cambridge';
     if(p.startsWith('/adaptive-verbs-catala'))return 'catala';
     if(p.startsWith('/adaptive-hoti0108'))return 'hoti0108';
+    if(p.startsWith('/adrian-hub/apps/entrenamiento'))return 'entrenamiento';
+    if(p.startsWith('/adrian-hub/apps/dc-inbox'))return 'dcinbox';
     if(p.startsWith('/adrian-hub'))return 'hub';
     if(p.startsWith('/limpieza'))return 'limpieza';
     return 'unknown';
@@ -72,6 +74,8 @@
       cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'https://adrianxds-ads.github.io/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
       catala:{id:'catala',name:'Català · Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-verbs-catala/',repo:'https://github.com/adrianxds-ads/adaptive-verbs-catala'},
       hoti0108:{id:'hoti0108',name:'HOTI0108',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-hoti0108/',repo:'https://github.com/adrianxds-ads/adaptive-hoti0108'},
+      entrenamiento:{id:'entrenamiento',name:'Entrenamiento 2.0',group:'Salud',kind:'hub-module',url:HUB_URL+'apps/entrenamiento/'},
+      dcinbox:{id:'dcinbox',name:'DC Inbox',group:'Sistema',kind:'hub-module',url:HUB_URL+'apps/dc-inbox/'},
       limpieza:{id:'limpieza',name:'Limpieza 2.2',group:'Hogar',kind:'private-pwa',url:location.origin+'/limpieza/',repo:'https://github.com/adrianxds-ads/limpieza-2.0'}
     };
     if(id==='hub')return fallback.hub;
