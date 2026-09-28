@@ -6,7 +6,11 @@ foreach($consumer in $config.consumers){
   foreach($file in $config.managedFiles){
     $src = Join-Path $root $file.source
     $dst = Join-Path $consumer.path $file.target
-    if(!(Test-Path $dst)){ Write-Host "$($consumer.id): missing $($file.target)"; continue }
+    if(!(Test-Path $dst)){
+      if($Apply){ Copy-Item $src $dst -Force; Write-Host "$($consumer.id): CREATED $($file.target)" }
+      else { Write-Host "$($consumer.id): missing $($file.target)" }
+      continue
+    }
     $srcHash=(Get-FileHash $src -Algorithm SHA256).Hash
     $dstHash=(Get-FileHash $dst -Algorithm SHA256).Hash
     if($srcHash -eq $dstHash){ Write-Host "$($consumer.id): OK"; continue }

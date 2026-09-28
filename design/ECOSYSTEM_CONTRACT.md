@@ -4,6 +4,9 @@ Adaptive English es la aplicación matriz. Antes de diseñar una app nueva se re
 
 La identidad compartida incluye, cuando sea aplicable: paleta AVS, fondos oscuros, jerarquía tipográfica, tarjetas, botones, bordes, sombras, navegación, pantallas de pregunta y resultado, indicadores, medallas, animaciones, transiciones, sonidos y filosofía de interacción. Compartir identidad no obliga a copiar literalmente la interfaz: cada app puede adaptar la composición a su contenido.
 
+## Temporizador visual común
+Todo temporizador visible del Hub utiliza Adrián Visual Timer como patrón único: esfera analógica tipo temporizador visual físico, porción/pizza AVS, tiempo numérico secundario y escala marrón → oro. La lógica de tiempo puede variar por app, pero no se crean estilos de temporizador independientes. Tamaños permitidos: large, compact y mini. Los cambios visuales del temporizador se hacen primero en Adrián Core y después se propagan a los consumidores.
+
 ## Jardín GitHub
 El jardín es una identidad transversal, no una base de datos estadística común. Cada aplicación tiene una especie distinta y una posición estable. El jardín completo vive en el Hub como capa lúdica secundaria; dentro de cada aplicación se muestra únicamente su propia planta. Las plantas sin métrica de progreso válida permanecen como semillas; nunca se fabrican puntos.
 
