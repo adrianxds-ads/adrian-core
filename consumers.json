@@ -10,6 +10,7 @@
   "managedFiles": [
     {"source":"design/adrian-visual-system.js","target":"adrian-visual-system.js"},
     {"source":"components/visual-timer.js","target":"visual-timer.js"},
-    {"source":"components/visual-timer.css","target":"visual-timer.css"}
+    {"source":"components/visual-timer.css","target":"visual-timer.css"},
+    {"source":"components/hub-path-game.js","target":"hub-path-game.js"}
   ]
 }
