@@ -4,6 +4,7 @@ if(window.AdrianGarden)return;
 const CORE="https://adrianxds-ads.github.io/adrian-core/";
 const REGISTRY_URL=CORE+"garden/registry.json?v=3";
 const SNAPSHOT_KEY="adrian_github_garden_v1";
+const STAR_KEY="adrian_hub_stars_v1",STAR_STEP=5;
 const CACHE=new Map();
 
 const PROFILES={
@@ -21,6 +22,15 @@ function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
 function rng(seed=1){let t=seed>>>0;return()=>{t+=0x6D2B79F5;let x=t;x=Math.imul(x^x>>>15,x|1);x^=x+Math.imul(x^x>>>7,x|61);return((x^x>>>14)>>>0)/4294967296;};}
 function readSnapshots(){try{return JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||"{}")||{};}catch{return{};}}
 function writeSnapshots(x){try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify(x));}catch{}}
+function starProgress(){
+  try{const x=JSON.parse(localStorage.getItem(STAR_KEY)||"{}"),apps=x.apps||{},values=Object.values(apps).map(n=>Math.max(0,Math.floor(Number(n)||0))),totalGold=values.reduce((sum,n)=>sum+n,0),stars=values.reduce((sum,n)=>sum+Math.floor(n/STAR_STEP),0);return{stars,totalGold,step:STAR_STEP,apps:{...apps}};}
+  catch{return{stars:0,totalGold:0,step:STAR_STEP,apps:{}};}
+}
+function earnedStarMarkup(count){
+  const n=Math.max(0,Math.min(120,Math.floor(Number(count)||0))),rnd=rng(0x5A17+n*97),out=[];
+  for(let i=0;i<n;i++){const x=(7+rnd()*86).toFixed(2),y=(6+rnd()*38).toFixed(2),size=(10+rnd()*7).toFixed(1),delay=(-rnd()*3.2).toFixed(2),dur=(2.1+rnd()*2.4).toFixed(2);out.push(`<span class="gg-earned-star" style="--sx:${x}%;--sy:${y}%;--ss:${size}px;--sd:${delay}s;--sdu:${dur}s" aria-hidden="true">★</span>`);}
+  return out.join("");
+}
 function getPath(obj,path){return String(path||"").split(".").filter(Boolean).reduce((a,k)=>a&&a[k],obj);}
 function detectAppId(){
   const p=location.pathname.toLowerCase();
@@ -163,6 +173,7 @@ function css(){
   const s=document.createElement("style");s.id="adrian-garden-css";s.textContent=`
 .github-garden{--gg-pan:0px;--gg-sky-top:#132126;--gg-sky-bottom:#33443d;--gg-ground:#17271f;position:relative;min-height:360px;overflow:hidden;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:linear-gradient(180deg,var(--gg-sky-top) 0 48%,var(--gg-sky-bottom) 49% 58%,var(--gg-ground) 59% 100%);box-shadow:inset 0 1px rgba(255,255,255,.05),0 14px 38px rgba(0,0,0,.20);touch-action:pan-y;isolation:isolate}
 .github-garden:before{content:"";position:absolute;inset:0;z-index:0;background-image:radial-gradient(circle at 10% 16%,rgba(255,255,255,.85) 0 1px,transparent 1.6px),radial-gradient(circle at 28% 9%,rgba(255,255,255,.72) 0 1px,transparent 1.5px),radial-gradient(circle at 47% 18%,rgba(255,255,255,.76) 0 1px,transparent 1.5px),radial-gradient(circle at 67% 11%,rgba(255,255,255,.72) 0 1px,transparent 1.5px),radial-gradient(circle at 88% 20%,rgba(255,255,255,.82) 0 1px,transparent 1.5px);opacity:var(--gg-stars,0);transition:opacity .8s ease}
+.gg-earned-stars{position:absolute;z-index:1;inset:0 0 42% 0;pointer-events:none;overflow:hidden;opacity:var(--gg-stars,0);transition:opacity .8s ease}.gg-earned-star{position:absolute;left:var(--sx);top:var(--sy);font-size:var(--ss);line-height:1;color:#fff0a6;text-shadow:0 0 5px rgba(255,240,166,.88),0 0 13px rgba(231,191,87,.62);transform:translate(-50%,-50%);animation:ggEarnedTwinkle var(--sdu) ease-in-out var(--sd) infinite alternate}.gg-earned-star:nth-child(3n){color:#fff8d8}.gg-earned-star:nth-child(4n){transform:translate(-50%,-50%) rotate(18deg)}
 .gg-sun{position:absolute;z-index:1;left:var(--gg-sun-x);top:var(--gg-sun-y);width:34px;height:34px;margin:-17px;border-radius:50%;background:radial-gradient(circle,#fff8d5 0 28%,#f0c66f 45%,rgba(240,198,111,.15) 67%,transparent 72%);box-shadow:0 0 34px rgba(255,219,139,.40);opacity:var(--gg-sun-opacity,.9);transition:left .8s ease,top .8s ease,opacity .8s ease}
 .gg-hills{position:absolute;z-index:2;left:-10%;right:-10%;bottom:22%;height:37%;opacity:.48;background:radial-gradient(ellipse at 18% 100%,#24392f 0 42%,transparent 43%),radial-gradient(ellipse at 55% 100%,#1c3026 0 47%,transparent 48%),radial-gradient(ellipse at 88% 100%,#26392f 0 42%,transparent 43%)}
 .github-garden:after{content:"";position:absolute;z-index:3;left:-12%;right:-12%;bottom:-16%;height:56%;border-radius:50% 50% 0 0/30% 30% 0 0;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--gg-ground) 75%,#33503a) 0,var(--gg-ground) 46%,#0d1712 78%);transform:perspective(420px) rotateX(58deg);transform-origin:bottom}
@@ -173,14 +184,15 @@ function css(){
 .gg-heading{position:absolute;z-index:20;left:16px;top:14px;display:grid;gap:2px;pointer-events:none}.gg-heading b{font:950 13px/1 system-ui,sans-serif;letter-spacing:.08em}.gg-heading span{font:800 9px/1.3 system-ui,sans-serif;letter-spacing:.08em;color:rgba(225,237,230,.66)}.gg-time{position:absolute;z-index:20;right:14px;top:13px;padding:6px 8px;border-radius:10px;background:rgba(7,14,11,.42);font:850 9px/1.2 system-ui,sans-serif;color:rgba(237,244,240,.74);backdrop-filter:blur(5px)}
 .gg-empty{display:grid;place-items:center;min-height:220px;color:#9fb3aa}
 .adrian-plant-card{position:relative;min-height:205px;display:grid;place-items:center;overflow:hidden;background:transparent;padding:4px 0}.adrian-plant-card__plant{height:200px;width:100%;display:grid;place-items:center;filter:drop-shadow(0 14px 13px rgba(0,0,0,.28))}.adrian-plant-card__plant svg{height:100%;max-width:250px;overflow:visible}
+@keyframes ggEarnedTwinkle{from{opacity:.62;filter:brightness(.86);scale:.88}to{opacity:1;filter:brightness(1.2);scale:1.08}}
 @media(max-width:560px){.github-garden{min-height:310px;border-radius:18px}.gg-plant{width:122px;height:132px;margin-left:-61px}.gg-plant[data-active="true"]{width:154px;height:166px;margin-left:-77px}.gg-label{min-width:90px;max-width:126px;font-size:9px}.gg-heading{left:12px;top:11px}.gg-time{right:10px;top:10px}.adrian-plant-card{min-height:185px;padding:0}.adrian-plant-card__plant{height:180px}}
 `;document.head.appendChild(s);
 }
 
 function renderScene(host,root,opts={}){
-  css();const active=opts.currentApp===undefined?detectAppId():opts.currentApp,apps=root.apps||[];
+  css();const active=opts.currentApp===undefined?detectAppId():opts.currentApp,apps=root.apps||[],star=starProgress();
   host.className="github-garden";host.dataset.mode="overview";
-  host.innerHTML='<div class="gg-heading"><b>JARDÍN GITHUB</b><span>JUEGO VISUAL DEL ECOSISTEMA</span></div><div class="gg-time"></div><div class="gg-sun"></div><div class="gg-hills"></div><div class="gg-horizon"></div><div class="gg-scene"></div>';
+  host.innerHTML='<div class="gg-heading"><b>JARDÍN GITHUB</b><span>JUEGO VISUAL DEL ECOSISTEMA</span></div><div class="gg-time"></div><div class="gg-earned-stars" aria-label="'+star.stars+' estrellas ganadas">'+earnedStarMarkup(star.stars)+'</div><div class="gg-sun"></div><div class="gg-hills"></div><div class="gg-horizon"></div><div class="gg-scene"></div>';
   applyAtmosphere(host);
   const scene=host.querySelector(".gg-scene"),ordered=apps.slice().sort((a,b)=>(b.position?.depth||.5)-(a.position?.depth||.5));
   for(const e of ordered){
@@ -219,7 +231,7 @@ function reportProgress(appId,data={}){
   const sn=readSnapshots();sn[appId]={level:n,at:Date.now(),source:data.source||"reported"};writeSnapshots(sn);return true;
 }
 
-window.AdrianGarden=Object.freeze({version:"1.2.1",registryUrl:REGISTRY_URL,loadRegistry,mount,mountPlant,detectAppId,reportProgress,growthStage:(level,interval=50,max=10000)=>clamp(Math.floor((Number(level)||0)/interval),0,Math.floor(max/interval)),solarState});
+window.AdrianGarden=Object.freeze({version:"1.3.0",registryUrl:REGISTRY_URL,loadRegistry,mount,mountPlant,detectAppId,reportProgress,starProgress,growthStage:(level,interval=50,max=10000)=>clamp(Math.floor((Number(level)||0)/interval),0,Math.floor(max/interval)),solarState});
 function auto(){document.querySelectorAll("[data-adrian-garden]").forEach(el=>{if(el.dataset.gardenMounted)return;el.dataset.gardenMounted="1";mount(el,{currentApp:el.dataset.currentApp||undefined,navigate:el.dataset.navigate==="true"});});}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",auto,{once:true});else auto();
 })();
