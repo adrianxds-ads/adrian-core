@@ -1,14 +1,14 @@
 ﻿(()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
 const nativeSet=Storage.prototype.setItem;
 const nativeRemove=Storage.prototype.removeItem;
 const nativeClear=Storage.prototype.clear;
-let applying=false,flushTimer=0,pullTimer=0;
+let applying=false,freezeWrites=false,flushTimer=0,pullTimer=0;
 const dirty=new Map();
 
 function eligible(key){
@@ -42,10 +42,10 @@ function mark(key,value,deleted=false){
  const updatedAt=Date.now();meta.times[key]=updatedAt;dirty.set(key,{value:deleted?null:String(value),deleted,updatedAt});saveMeta();
  clearTimeout(flushTimer);flushTimer=setTimeout(flush,5000);
 }
-Storage.prototype.setItem=function(key,value){const r=nativeSet.call(this,key,value);if(this===localStorage)mark(String(key),String(value),false);return r;};
-Storage.prototype.removeItem=function(key){const existed=this===localStorage?this.getItem(key)!==null:false;const r=nativeRemove.call(this,key);if(this===localStorage&&existed)mark(String(key),null,true);return r;};
+Storage.prototype.setItem=function(key,value){if(this===localStorage&&freezeWrites&&eligible(key))return;const r=nativeSet.call(this,key,value);if(this===localStorage)mark(String(key),String(value),false);return r;};
+Storage.prototype.removeItem=function(key){if(this===localStorage&&freezeWrites&&eligible(key))return;const existed=this===localStorage?this.getItem(key)!==null:false;const r=nativeRemove.call(this,key);if(this===localStorage&&existed)mark(String(key),null,true);return r;};
 Storage.prototype.clear=function(){
- if(this!==localStorage)return nativeClear.call(this);
+ if(this!==localStorage)return nativeClear.call(this);if(freezeWrites)return;
  const keys=[];for(let i=0;i<this.length;i++){const k=this.key(i);if(eligible(k))keys.push(k);}
  const r=nativeClear.call(this);for(const k of keys)mark(k,null,true);return r;
 };
@@ -84,7 +84,7 @@ async function pull(initial=false){
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
   if(initial){for(const [k,v] of before){if(!(k in entries)&&!meta.times[k])mark(k,v,false);}}
   status('â˜ sincronizado','ok');
-  if(changed){window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));if(initial&&!sessionStorage.getItem('adrian_sync_reload_v1')){sessionStorage.setItem('adrian_sync_reload_v1','1');setTimeout(()=>location.reload(),250);}}
+  if(changed){window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));if(initial&&!sessionStorage.getItem('adrian_sync_reload_v2')){sessionStorage.setItem('adrian_sync_reload_v2','1');freezeWrites=true;location.reload();}}
   return true;
  }catch(e){status('â—‹ guardado local','offline');return false;}
  finally{pullTimer=setTimeout(()=>pull(false),30000);}
@@ -95,4 +95,5 @@ window.addEventListener('pagehide',()=>{flush();});
 window.AdrianSync=Object.freeze({version:VERSION,pull,flush,status,endpoint:ENDPOINT,deviceId:meta.deviceId});
 setTimeout(()=>pull(true),0);
 })();
+
 
