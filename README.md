@@ -34,3 +34,6 @@ Componente maestro: `components/adrian-keyboard.js`.
 - Sin autocorrección, sugerencias ni teclado nativo cuando un campo usa `data-ad-keyboard`.
 
 Uso: cargar `https://adrianxds-ads.github.io/adrian-core/components/adrian-keyboard.js?v=410` y añadir `data-ad-keyboard="es"`, `ca` o `en` al campo.
+## Shared performance contract
+
+components/adrian-performance.js exposes window.AdrianPerformance. Each app supplies a small adapter that maps its own pedagogy to common presentation fields (AVS rank, coverage, mastery when valid, recent accuracy, /15 equivalent, timing, sessions, focus and JSON). Missing or invalid concepts must remain null/—; app-specific learning engines are never replaced by Core.
