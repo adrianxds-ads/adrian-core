@@ -1,7 +1,7 @@
-﻿(()=>{
+(()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.3';
+const VERSION='1.0.4';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -37,6 +37,7 @@ function saveMeta(){try{nativeSet.call(localStorage,META_KEY,JSON.stringify(meta
 function status(text,kind='ok'){
  window.dispatchEvent(new CustomEvent('adrian-sync-status',{detail:{text,kind,revision:meta.revision}}));
  if(!location.pathname.startsWith('/adrian-hub'))return;
+ if(!document.body){document.addEventListener('DOMContentLoaded',()=>status(text,kind),{once:true});return;}
  let el=document.getElementById('adrianSyncStatus');
  if(!el){el=document.createElement('div');el.id='adrianSyncStatus';el.style.cssText='position:fixed;right:8px;bottom:8px;z-index:9999;padding:5px 8px;border-radius:999px;background:rgba(9,18,16,.82);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);color:#dce9e2;font:800 9px/1.1 system-ui,sans-serif;letter-spacing:.04em;pointer-events:none;opacity:.86';document.body.appendChild(el);}
  el.textContent=text;el.dataset.kind=kind;
