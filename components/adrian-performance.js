@@ -1,9 +1,9 @@
 (()=>{"use strict";
-const VERSION="1.0.0";
+const VERSION="1.0.1";
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,Number(v)||0));
 const ranks=()=>window.ADRIAN_VISUAL_SYSTEM?.ranks||[];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const finite=v=>Number.isFinite(Number(v));
+const finite=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v));
 const pct=v=>finite(v)?`${Math.round(Number(v))}%`:"—";
 const one=v=>finite(v)?Number(v).toFixed(1):"—";
 const fmtTime=s=>{if(!finite(s))return"—";s=Math.max(0,Math.round(Number(s)));const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),r=s%60;return h?`${h}h ${String(m).padStart(2,"0")}m`:m?`${m}m ${r}s`:`${r}s`;};
