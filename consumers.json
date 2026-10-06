@@ -2,19 +2,76 @@
   "version": 2,
   "source": "adrian-core",
   "consumers": [
-    {"id":"english","path":"C:\\Users\\adria\\adaptive-english"},
-    {"id":"phrasal-verbs","path":"C:\\Users\\adria\\adaptive-phrasal-verbs"},
-    {"id":"catala","path":"C:\\Users\\adria\\adaptive-verbs-catala"},
-    {"id":"b2-cloze","path":"C:\\Users\\adria\\b2-multiple-choice-cloze"},
-    {"id":"cambridge","path":"C:\\Users\\adria\\adaptive-exam"},
-    {"id":"hoti0108","path":"C:\\Users\\adria\\adaptive-hoti0108"},
-    {"id":"pizarras","path":"C:\\Users\\adria\\adaptive-pizarras"}
+    {
+      "id": "english",
+      "path": "../adaptive-english"
+    },
+    {
+      "id": "phrasal-verbs",
+      "path": "../adaptive-phrasal-verbs"
+    },
+    {
+      "id": "catala",
+      "path": "../adaptive-verbs-catala"
+    },
+    {
+      "id": "b2-cloze",
+      "path": "../b2-multiple-choice-cloze"
+    },
+    {
+      "id": "cambridge",
+      "path": "../adaptive-exam"
+    },
+    {
+      "id": "hoti0108",
+      "path": "../adaptive-hoti0108"
+    },
+    {
+      "id": "pizarras",
+      "path": "../adaptive-pizarras"
+    }
   ],
   "managedFiles": [
-    {"source":"design/adrian-visual-system.js","target":"adrian-visual-system.js","apps":["english","phrasal-verbs","catala","b2-cloze","cambridge","hoti0108"]},
-    {"source":"components/visual-timer.js","target":"visual-timer.js","apps":["english","catala","cambridge","hoti0108"]},
-    {"source":"components/visual-timer.css","target":"visual-timer.css","apps":["english","catala","cambridge","hoti0108"]},
-    {"source":"components/hub-path-game.js","target":"hub-path-game.js"},
-    {"source":"components/adrian-achievements.js","target":"adrian-achievements.js"}
-  ]
+    {
+      "source": "design/adrian-visual-system.js",
+      "target": "adrian-visual-system.js",
+      "apps": [
+        "english",
+        "phrasal-verbs",
+        "catala",
+        "b2-cloze",
+        "cambridge",
+        "hoti0108"
+      ]
+    },
+    {
+      "source": "components/visual-timer.js",
+      "target": "visual-timer.js",
+      "apps": [
+        "english",
+        "catala",
+        "cambridge",
+        "hoti0108"
+      ]
+    },
+    {
+      "source": "components/visual-timer.css",
+      "target": "visual-timer.css",
+      "apps": [
+        "english",
+        "catala",
+        "cambridge",
+        "hoti0108"
+      ]
+    },
+    {
+      "source": "components/hub-path-game.js",
+      "target": "hub-path-game.js"
+    },
+    {
+      "source": "components/adrian-achievements.js",
+      "target": "adrian-achievements.js"
+    }
+  ],
+  "workspaceOnly": true
 }
