@@ -1,7 +1,7 @@
 ﻿(()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.2';
+const VERSION='1.0.3';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -60,15 +60,19 @@ async function bodyFor(payload){
 }
 async function flush(){
  clearTimeout(flushTimer);flushTimer=0;if(!dirty.size)return true;
- const changes=Object.fromEntries(dirty);status('Ã¢ËœÂ guardandoÃ¢â‚¬Â¦','busy');
+ const changes=Object.fromEntries(dirty),sentKeys=Object.keys(changes);status('☁ guardando…','busy');
  try{
   const enc=await bodyFor({deviceId:meta.deviceId,changes});
   const r=await fetch(ENDPOINT+'/sync',{method:'POST',mode:'cors',cache:'no-store',targetAddressSpace:'local',headers:enc.headers,body:enc.body});if(!r.ok)throw new Error('HTTP '+r.status);
-  const x=await r.json();for(const k of Object.keys(changes)){const cur=dirty.get(k);if(cur&&cur.updatedAt===changes[k].updatedAt)dirty.delete(k);}meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();status('Ã¢ËœÂ sincronizado','ok');return true;
- }catch(e){status('Ã¢â€”â€¹ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
+  const x=await r.json();
+  for(const k of sentKeys){const cur=dirty.get(k);if(cur&&cur.updatedAt===changes[k].updatedAt)dirty.delete(k);}
+  const accepted=Number(x.accepted),needsReconcile=Number.isFinite(accepted)&&accepted<sentKeys.length;
+  if(needsReconcile){meta.revision=0;saveMeta();const reconciled=await pull(false);if(!reconciled)throw new Error('reconcile-failed');status('☁ sincronizado','ok');return true;}
+  meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();status('☁ sincronizado','ok');return true;
+ }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
 }
 async function pull(initial=false){
- clearTimeout(pullTimer);pullTimer=0;status('Ã¢ËœÂ sincronizandoÃ¢â‚¬Â¦','busy');
+ clearTimeout(pullTimer);pullTimer=0;status('☁ sincronizando…','busy');
  try{
   const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}}
   const full=initial&&!localStorage.getItem(RECONCILE_KEY),since=full?0:meta.revision;const r=await fetch(ENDPOINT+'/changes?since='+encodeURIComponent(since),{mode:'cors',cache:'no-store',targetAddressSpace:'local'});if(!r.ok)throw new Error('HTTP '+r.status);
@@ -82,16 +86,16 @@ async function pull(initial=false){
     if(remoteTime<localTime&&!forceRemote){if(initial&&current!==null)dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now()});continue;}
     if(row.deleted){if(current!==null){nativeRemove.call(localStorage,k);changed=true;}}
     else if(typeof row.value==='string'&&current!==row.value){nativeSet.call(localStorage,k,row.value);changed=true;}
-    meta.times[k]=Math.max(localTime,remoteTime);
+    meta.times[k]=remoteTime;
    }
   }finally{applying=false;}
   if(dirty.size&&!flushTimer)flushTimer=setTimeout(flush,5000);if(full)try{nativeSet.call(localStorage,RECONCILE_KEY,'1');}catch{}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
   if(initial){for(const [k,v] of before){if(!(k in entries)&&!meta.times[k])mark(k,v,false);}}
-  status('Ã¢ËœÂ sincronizado','ok');
+  status('☁ sincronizado','ok');
   if(changed){window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));if(initial&&!sessionStorage.getItem('adrian_sync_reload_v2')){sessionStorage.setItem('adrian_sync_reload_v2','1');freezeWrites=true;location.reload();}}
   return true;
- }catch(e){status('Ã¢â€”â€¹ guardado local','offline');return false;}
+ }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
  finally{pullTimer=setTimeout(()=>pull(false),30000);}
 }
 window.addEventListener('storage',e=>{if(e.storageArea===localStorage&&eligible(e.key))mark(e.key,e.newValue,e.newValue===null);});
