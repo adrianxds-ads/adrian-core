@@ -86,7 +86,7 @@ async function flush(){
   const acknowledged=Array.isArray(x.acceptedKeys)?x.acceptedKeys:(Number(x.accepted)===sentKeys.length?sentKeys:[]);
   for(const k of acknowledged){if(dirty.get(k)===changes[k])dirty.delete(k);}
   const accepted=Number(x.accepted),needsReconcile=Number.isFinite(accepted)&&accepted<sentKeys.length;
-  if(needsReconcile){meta.revision=0;saveMeta();const reconciled=await pull(false);if(!reconciled)throw new Error('reconcile-failed');status('☁ sincronizado','ok');return true;}
+  if(needsReconcile){meta.revision=0;saveMeta();const reconciled=await pull(false);if(!reconciled)throw new Error('reconcile-failed');if(dirty.size){status('○ conflicto preservado localmente','conflict');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}status('☁ sincronizado','ok');return true;}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();status('☁ sincronizado','ok');return true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}finally{flushing=false;saveMeta();}
 }
@@ -126,5 +126,4 @@ window.AdrianSync=Object.freeze({version:VERSION,pull,flush,status,endpoint:ENDP
 if(dirty.size)flushTimer=setTimeout(flush,5000);
 setTimeout(()=>pull(true),0);
 })();
-
 
