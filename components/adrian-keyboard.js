@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.AdrianKeyboard)return;
-const VERSION='4.1.0';
+const VERSION='4.1.2';
 const alphaLayouts={
  en:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['Z','X','C','V','B','N','M']],
  es:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L','Ñ'],['Z','X','C','V','B','N','M']],
@@ -58,6 +58,7 @@ function render(){
 function bindCharKey(button){
  button.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'&&e.button!==0)return;
+  e.preventDefault();
   longTriggered=false;clearTimeout(longTimer);
   const key=button.dataset.char,variants=mode==='alpha'?(accentMap[lang]?.[key]||[]):[];
   if(variants.length)longTimer=setTimeout(()=>{longTriggered=true;haptic(18);if(variants.length===1)insert(variants[0]);else showAccentPopover(button,variants);},430);
@@ -90,7 +91,8 @@ function keepActiveVisible(smooth=false){
  if(!active||!root?.classList.contains('open'))return;
  const kbTop=root.getBoundingClientRect().top,rect=active.getBoundingClientRect();
  const previewH=root.querySelector('.ad-keyboard-float-preview')?.getBoundingClientRect().height||0;
- const topGuard=Math.max(54,document.querySelector('.adrian-tools')?.getBoundingClientRect().bottom||0)+8,bottomLimit=kbTop-previewH-18;
+ const bottomLimit=kbTop-previewH-18,tools=document.querySelector('.adrian-tools')?.getBoundingClientRect();
+ const topGuard=Math.max(54,tools&&tools.top<=80&&tools.bottom>0&&tools.bottom<bottomLimit?tools.bottom:0)+8;
  let delta=0;if(rect.bottom>bottomLimit)delta=rect.bottom-bottomLimit;else if(rect.top<topGuard)delta=rect.top-topGuard;
  if(Math.abs(delta)>1)window.scrollBy({top:delta,left:0,behavior:smooth?'smooth':'auto'});
 }
