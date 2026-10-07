@@ -1,6 +1,6 @@
 # Conciliación conservadora de Cambridge — 7 de octubre de 2026
 
-Estado: candidato local Sync 1.0.6, pendiente de autorización de publicación. Producción continúa en 1.0.5.
+Estado: Sync 1.0.6 publicado tras autorización y comprobado el 7 de octubre de 2026. Evidencia final en adrian-hub/docs/DEPLOYMENT-2026-10-07.md.
 
 Cuando dos dispositivos completan ejercicios distintos sobre un historial común, el cliente y el servidor unen los intentos de cambridgeB2ExerciseStatsV3 por su id. Conservan cada intento completo y ordenan por completedAt e id. Un reintento de envío conserva el mismo conjunto de intentos.
 
@@ -23,3 +23,5 @@ Publicación propuesta:
 4. Conservar las sesiones abiertas hasta su cierre natural.
 
 Riesgo residual: este cambio añade escrituras de unión sobre historiales reales al desplegarse. La cobertura se limita a Cambridge identificado; las otras apps y los registros incompatibles siguen requiriendo conciliación específica.
+
+Publicación completada: 67 huellas públicas verificadas; servidor 1.0.6; PC 1.0.6 ↔ Pixel 1.0.5 existente compatible; recarga offline y diez claves protegidas intactas. La unión de historiales se validó con datos sintéticos y el transporte real con una clave desechable.
