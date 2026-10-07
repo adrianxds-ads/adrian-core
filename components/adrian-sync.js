@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.5';
+const VERSION='1.0.6';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -12,6 +12,25 @@ const nativeClear=Storage.prototype.clear;
 let applying=false,flushTimer=0,pullTimer=0,flushing=false;
 const dirty=new Map();
 const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1']);
+// Only immutable, identified Cambridge attempts can be joined without inventing counters.
+function mergeProgress(key,left,right){
+ if(key!=='cambridgeB2ExerciseStatsV3')return null;
+ function canonical(x){if(Array.isArray(x))return JSON.stringify(x.map(v=>JSON.parse(canonical(v))));if(x&&typeof x==='object')return JSON.stringify(Object.fromEntries(Object.keys(x).sort().map(k=>[k,JSON.parse(canonical(x[k]))])));return JSON.stringify(x);}
+ try{
+  const a=JSON.parse(left),b=JSON.parse(right);
+  if(!a||!b||Array.isArray(a)||Array.isArray(b)||!Array.isArray(a.attempts)||!Array.isArray(b.attempts))return null;
+  const extras=x=>Object.fromEntries(Object.entries(x).filter(([k])=>k!=='attempts'));
+  if(canonical(extras(a))!==canonical(extras(b)))return null;
+  const rows=new Map();
+  for(const row of [...a.attempts,...b.attempts]){
+   if(!row||typeof row.id!=='string'||!row.id||typeof row.exerciseId!=='string'||!Number.isFinite(row.correct)||!Number.isFinite(row.total)||row.total<=0||row.correct<0||row.correct>row.total||typeof row.completedAt!=='string'||!Number.isFinite(Date.parse(row.completedAt)))return null;
+   const old=rows.get(row.id);if(old&&canonical(old)!==canonical(row))return null;
+   rows.set(row.id,row);
+  }
+  const attempts=[...rows.values()].sort((x,y)=>Date.parse(x.completedAt)-Date.parse(y.completedAt)||(x.id<y.id?-1:x.id>y.id?1:0));
+  return canonical({...extras(a),attempts});
+ }catch{return null;}
+}
 function progressScore(value,key){
  try{
   const x=JSON.parse(value);if(!x||typeof x!=='object'||Array.isArray(x))return null;
@@ -86,7 +105,7 @@ async function flush(){
   const x=await r.json();
   const acknowledged=Array.isArray(x.acceptedKeys)?x.acceptedKeys:(Number(x.accepted)===sentKeys.length?sentKeys:[]);
   for(const k of acknowledged){if(dirty.get(k)===changes[k])dirty.delete(k);}
-  const accepted=Number(x.accepted),needsReconcile=Number.isFinite(accepted)&&accepted<sentKeys.length;
+  const accepted=Number(x.accepted),needsReconcile=(Number.isFinite(accepted)&&accepted<sentKeys.length)||(Array.isArray(x.mergedKeys)&&x.mergedKeys.length>0);
   if(needsReconcile){meta.revision=0;saveMeta();const reconciled=await pull(false);if(!reconciled)throw new Error('reconcile-failed');if(dirty.size){status('○ conflicto preservado localmente','conflict');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}status('☁ sincronizado','ok');return true;}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();status('☁ sincronizado','ok');return true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}finally{flushing=false;saveMeta();}
@@ -103,7 +122,16 @@ async function pull(initial=false){
     if(!eligible(k)||!row)continue;
     if(row.deleted&&GUARDED_KEYS.has(k))continue;
     const remoteTime=Number(row.updatedAt)||0,localTime=Number(meta.times[k])||0;
-    const current=localStorage.getItem(k),forceRemote=!row.deleted&&typeof row.value==='string'&&remoteHasMoreProgress(k,row.value,current);
+    const current=localStorage.getItem(k);
+    if(k==='cambridgeB2ExerciseStatsV3'&&!row.deleted&&current!==null&&current!==row.value){
+     const merged=mergeProgress(k,current,row.value);
+     if(merged===null){dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now()});continue;}
+     if(merged!==current){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,merged);changed=true;}
+     if(merged!==row.value){const updatedAt=Math.max(Date.now(),localTime,remoteTime)+1;meta.times[k]=updatedAt;dirty.set(k,{value:merged,deleted:false,updatedAt});}
+     else{meta.times[k]=Math.max(localTime,remoteTime);dirty.delete(k);}
+     continue;
+    }
+    const forceRemote=!row.deleted&&typeof row.value==='string'&&remoteHasMoreProgress(k,row.value,current);
     if((remoteTime<localTime&&!forceRemote)||(!row.deleted&&current!==null&&progressRegresses(k,current,row.value)&&!forceRemote)){if(current!==null)dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now()});continue;}
     if(row.deleted){if(current!==null){nativeRemove.call(localStorage,k);changed=true;}}
     else if(typeof row.value==='string'&&current!==row.value){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,row.value);changed=true;}
@@ -127,4 +155,3 @@ window.AdrianSync=Object.freeze({version:VERSION,pull,flush,status,endpoint:ENDP
 if(dirty.size)flushTimer=setTimeout(flush,5000);
 setTimeout(()=>pull(true),0);
 })();
-
