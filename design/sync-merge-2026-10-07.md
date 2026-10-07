@@ -25,3 +25,7 @@ Publicación propuesta:
 Riesgo residual: este cambio añade escrituras de unión sobre historiales reales al desplegarse. La cobertura se limita a Cambridge identificado; las otras apps y los registros incompatibles siguen requiriendo conciliación específica.
 
 Publicación completada: 67 huellas públicas verificadas; servidor 1.0.6; PC 1.0.6 ↔ Pixel 1.0.5 existente compatible; recarga offline y diez claves protegidas intactas. La unión de historiales se validó con datos sintéticos y el transporte real con una clave desechable.
+
+## Estado posterior — Sync 1.0.7
+
+La limitación a Cambridge descrita en este documento quedó superada el mismo 7 de octubre de 2026 por Sync 1.0.7. La versión final añade revisión-base por clave y políticas deterministas para los esquemas conocidos, incluida HOTI, y conserva como conflicto únicamente los casos que no pueden fusionarse con seguridad. La aceptación real PC↔Pixel verificó una divergencia HOTI desde una base común, la presencia simultánea de ambas ramas en el estado canónico y la restauración posterior del estado original. El cierre y las versiones finales constan en `adrian-hub/docs/DEPLOYMENT-2026-10-07.md`.
