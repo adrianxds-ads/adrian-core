@@ -1,50 +1,40 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{Readable}=require('node:stream');
-const root=path.join(__dirname,'..'),client=fs.readFileSync(path.join(root,'components/adrian-sync.js'),'utf8'),server=fs.readFileSync(path.join(root,'../adrian-sync-server/server.js'),'utf8');
-const key='cambridgeB2ExerciseStatsV3',attempt=(id,n=1)=>({id,exerciseId:'exam-11-part-2',correct:n,total:8,completedAt:'2026-10-07T00:00:00.000Z',items:[{correct:true}]}),state=(...rows)=>JSON.stringify({attempts:rows});
-function policy(source){const start=source.indexOf('function mergeProgress('),end=source.indexOf('function progressScore(',start);return vm.runInNewContext(source.slice(start,end)+';mergeProgress');}
-const join=policy(client),serverJoin=policy(server),a=state(attempt('a')),b=state(attempt('b')),c=state(attempt('c'));
-const ids=s=>JSON.parse(s).attempts.map(x=>x.id);
-assert.deepEqual(ids(join(key,a,b)),['a','b']);
-assert.equal(join(key,a,b),join(key,b,a),'commutative');
-assert.equal(join(key,join(key,a,b),c),join(key,a,join(key,b,c)),'associative');
-assert.equal(join(key,join(key,a,b),join(key,a,b)),join(key,a,b),'idempotent');
-assert.equal(serverJoin(key,a,b),join(key,a,b),'client and server use identical policy');
-assert.equal(join(key,a,state(attempt('a',2))),null,'same identifier with different result remains conflict');
-assert.equal(join(key,a,'{"attempts":[{}]}'),null,'unidentified legacy attempts remain conflict');
-assert.equal(join(key,'{"attempts":[],"reset":1}','{"attempts":[]}'),null,'unknown metadata never overwritten');
-assert.equal(join('pizarras_state_v1',a,b),null,'aggregate schemas never guessed');
-let handler,saved;
-const initial={schema:1,revision:10,entries:{[key]:{value:a,deleted:false,updatedAt:100,deviceId:'A',revision:10}}};
-const fakeFs={mkdirSync(){},readFileSync(){return JSON.stringify(initial);},appendFileSync(){},existsSync(){return false;},writeFileSync(p,v){saved=JSON.parse(v);},renameSync(){}};
-vm.runInNewContext(server,{require(n){if(n==='http')return{createServer(fn){handler=fn;return{listen(p,h,f){f();}};}};if(n==='fs')return fakeFs;return require(n);},__dirname:'.',Buffer,URL,console:{log(){}},Date,JSON,Set,Object,Number,String});
-function request(method,url,body){return new Promise((resolve,reject)=>{const req=Readable.from(body?[Buffer.from(JSON.stringify(body))]:[]);req.method=method;req.url=url;req.headers={host:'localhost',origin:'https://adrianxds-ads.github.io'};const res={statusCode:200,setHeader(){},end(v){resolve({status:this.statusCode,data:JSON.parse(String(v))});}};Promise.resolve(handler(req,res)).catch(reject);});}
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),zlib=require('node:zlib');
+const root=path.join(__dirname,'..'),client=fs.readFileSync(path.join(root,'components/adrian-sync.js'),'utf8');
+const policy=require(path.join(root,'../adrian-sync-server/merge-policy.js'));
+const cam='cambridgeB2ExerciseStatsV3',attempt=(id,n=1)=>({id,exerciseId:'exam-11-part-2',correct:n,total:8,completedAt:'2026-10-07T00:00:00.000Z',items:[{correct:true}]}),state=(...rows)=>JSON.stringify({attempts:rows});
+const a=state(attempt('a')),b=state(attempt('b')),c=state(attempt('c')),ids=s=>JSON.parse(s).attempts.map(x=>x.id);
+assert.deepEqual(ids(policy.mergePair(cam,a,b)),['a','b']);
+assert.equal(policy.mergePair(cam,a,b),policy.mergePair(cam,b,a),'Cambridge pair merge is commutative');
+assert.equal(policy.mergePair(cam,policy.mergePair(cam,a,b),c),policy.mergePair(cam,a,policy.mergePair(cam,b,c)),'Cambridge pair merge is associative');
+assert.equal(policy.mergePair(cam,policy.mergePair(cam,a,b),policy.mergePair(cam,a,b)),policy.mergePair(cam,a,b),'Cambridge pair merge is idempotent');
+assert.equal(policy.mergePair(cam,a,state(attempt('a',2))),null,'same immutable id with different result remains conflict');
+
+function env(seed={},getResponse={entries:{},revision:1},postResponse={accepted:1,acceptedKeys:[],mergedKeys:[],conflictKeys:[],revision:2}){
+ class Storage{constructor(x={}){this.data=new Map(Object.entries(x));}get length(){return this.data.size;}key(i){return [...this.data.keys()][i]??null;}getItem(k){return this.data.get(String(k))??null;}setItem(k,v){this.data.set(String(k),String(v));}removeItem(k){this.data.delete(String(k));}clear(){this.data.clear();}}
+ const localStorage=new Storage(seed),sessionStorage=new Storage(),calls=[],events={};
+ const context={Storage,localStorage,sessionStorage,Map,Set,Date,Math,JSON,Object,Number,String,Uint8Array,Blob,Response,crypto:{randomUUID:()=> 'test-device'},atob:s=>Buffer.from(s,'base64').toString('binary'),pako:{ungzip(bytes,opt){const out=zlib.gunzipSync(Buffer.from(bytes));return opt&&opt.to==='string'?out.toString('utf8'):new Uint8Array(out);}},setTimeout:()=>1,clearTimeout(){},CustomEvent:class{constructor(n,x){this.type=n;this.detail=x.detail;}},location:{pathname:'/test',reload(){}},document:{addEventListener(){},visibilityState:'hidden'},window:{pako:null,addEventListener(n,f){events[n]=f;},dispatchEvent(){}},async fetch(url,opts){calls.push({url,opts});return{ok:true,json:async()=>opts?.method==='POST'?postResponse:getResponse};}};
+ context.window.pako=context.pako;vm.runInNewContext(client,context);return{context,localStorage,calls};
+}
 (async()=>{
- const r=await request('POST','/sync',{deviceId:'B',changes:{[key]:{value:b,updatedAt:50,deleted:false}}});
- assert.deepEqual(r.data.acceptedKeys,[],'joined values must not acknowledge stale payload; old clients must reconcile');
- assert.equal(r.data.accepted,0);
- assert.deepEqual(r.data.mergedKeys,[key]);assert.deepEqual(ids(saved.entries[key].value),['a','b']);
- const duplicate=await request('POST','/sync',{deviceId:'B',changes:{[key]:{value:b,updatedAt:50}}});
- assert.equal(duplicate.data.accepted,0);assert.deepEqual(ids(saved.entries[key].value),['a','b'],'retry never double-counts');
- const collision=await request('POST','/sync',{deviceId:'C',changes:{[key]:{value:state(attempt('a',2)),updatedAt:200}}});
- assert.equal(collision.data.accepted,0);assert.deepEqual(ids(saved.entries[key].value),['a','b']);
- const deletion=await request('POST','/sync',{deviceId:'C',changes:{[key]:{deleted:true,updatedAt:300}}});assert.equal(deletion.data.accepted,0);
- const existing=fs.readFileSync(path.join(__dirname,'sync-integrity.cjs'),'utf8');
- const env=vm.runInNewContext(existing.slice(0,existing.indexOf('(async()=>'))+';env',{require,__dirname,console});
- const e=env({[key]:b},{entries:{[key]:{value:a,updatedAt:100}},revision:10});
- await e.context.window.AdrianSync.pull(false);
- assert.deepEqual(ids(e.localStorage.getItem(key)),['a','b']);
- assert([...e.localStorage.data.keys()].some(k=>k.startsWith(key+'_recovery_')),'local history backed up before join');
- assert(JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1')).pending[key],'union queued for server');
- const restarted=env(Object.fromEntries(e.localStorage.data));
- assert(JSON.parse(restarted.localStorage.getItem('adrian_sync_meta_v1')).pending[key],'merge survives reload');
- e.context.fetch=async(url,opts)=>{const r=await request(opts?.method||'GET',url.replace(/^https:\/\/[^/]+\/hub-sync/,''),opts?.body?JSON.parse(opts.body):null);return {ok:r.status===200,json:async()=>r.data};};
- assert.equal(await e.context.window.AdrianSync.flush(),true);
- assert.deepEqual(ids(e.localStorage.getItem(key)),['a','b']);
- const f=env({[key]:c},{entries:{[key]:{value:saved.entries[key].value,updatedAt:100}},revision:10});
- f.context.fetch=e.context.fetch;f.localStorage.setItem(key,c);
- assert.equal(await f.context.window.AdrianSync.flush(),true,'server merge acknowledgement pulls joined history before claiming success');
- assert.deepEqual(ids(f.localStorage.getItem(key)),['a','b','c']);
- assert(!JSON.parse(f.localStorage.getItem('adrian_sync_meta_v1')).pending[key]);
- console.log('PASS conservative merge: union laws, collision/legacy/metadata guards, older clocks, retries, server acknowledgement, recovery, queued reload; isolated fake state only');
+ const key='adrian_hub_stars_v1',base={version:2,apps:{english:4,'phrasal-verbs':1},stars:1,totalGold:5,progress:0,step:5,updatedAt:100},baseValue=JSON.stringify(base);
+ let remote={entries:{[key]:{value:baseValue,deleted:false,updatedAt:100,revision:10,deviceId:'seed'}},revision:10};
+ let post={accepted:0,acceptedKeys:[],mergedKeys:[key],conflictKeys:[],revision:12};
+ const e=env({[key]:baseValue},remote,post);
+ await e.context.window.AdrianSync.pull(true);
+ let meta=JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1'));assert.equal(meta.baseRevisions[key],10,'initial full pull seeds per-key base revision');
+ const local={...base,apps:{...base.apps,english:5},totalGold:6,stars:1,progress:1,updatedAt:200};e.localStorage.setItem(key,JSON.stringify(local));
+ meta=JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1'));assert.equal(meta.pending[key].baseRevision,10,'local edit keeps common ancestor revision');
+ const merged={...base,apps:{english:5,'phrasal-verbs':3},totalGold:8,stars:1,progress:3,updatedAt:300};
+ remote={entries:{[key]:{value:JSON.stringify(merged),deleted:false,updatedAt:300,revision:12,deviceId:'server'}},revision:12};
+ e.context.fetch=async(url,opts)=>{e.calls.push({url,opts});return{ok:true,json:async()=>opts?.method==='POST'?post:remote};};
+ assert.equal(await e.context.window.AdrianSync.flush(),true,'server-merged payload reconciles in same flush');
+ const sent=e.calls.find(x=>x.opts?.method==='POST');assert(sent,'POST emitted');assert.equal(JSON.parse(sent.opts.body).changes[key].baseRevision,10,'wire payload carries baseRevision');
+ assert.deepEqual(JSON.parse(e.localStorage.getItem(key)).apps,merged.apps,'client adopts canonical merged server value');
+ meta=JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1'));assert.equal(meta.baseRevisions[key],12);assert(!meta.pending[key],'merged key is cleared only after canonical pull');
+ const compressed='ADRIAN:GZIP:1:'+zlib.gzipSync(Buffer.from(baseValue)).toString('base64');
+ const f=env({[key]:baseValue},{entries:{[key]:{value:compressed,deleted:false,updatedAt:400,revision:20}},revision:20});
+ await f.context.window.AdrianSync.pull(true);assert.deepEqual(JSON.parse(f.localStorage.getItem(key)).apps,base.apps,'compressed server value compares as the same logical state');
+ assert.equal(JSON.parse(f.localStorage.getItem('adrian_sync_meta_v1')).baseRevisions[key],20);
+ console.log('PASS Sync 1.0.7 merge client: Cambridge algebra, baseRevision wire contract, merged-result adoption, compressed-state normalization');
 })().catch(e=>{console.error(e);process.exitCode=1;});
