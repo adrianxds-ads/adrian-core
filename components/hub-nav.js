@@ -47,6 +47,7 @@
     if(p.startsWith('/adaptive-phrasal-verbs'))return 'phrasal-verbs';
     if(p.startsWith('/b2-multiple-choice-cloze'))return 'b2-cloze';
     if(p.startsWith('/adaptive-exam'))return 'cambridge';
+ if(p.startsWith('/adaptive-keyword-speaking'))return 'keyword-speaking';
     if(p.startsWith('/adaptive-verbs-catala'))return 'catala';
     if(p.startsWith('/adaptive-hoti0108'))return 'hoti0108';
     if(p.startsWith('/adrian-hub/apps/entrenamiento'))return 'entrenamiento';
@@ -72,6 +73,7 @@
       'phrasal-verbs':{id:'phrasal-verbs',name:'Phrasal Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-phrasal-verbs/',repo:'https://github.com/adrianxds-ads/adaptive-phrasal-verbs'},
       'b2-cloze':{id:'b2-cloze',name:'B2 Multiple-Choice Cloze',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/b2-multiple-choice-cloze/',repo:'https://github.com/adrianxds-ads/b2-multiple-choice-cloze'},
       cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'https://adrianxds-ads.github.io/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
+ 'keyword-speaking':{id:'keyword-speaking',name:'Key Word Speaking',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-keyword-speaking/',repo:'https://github.com/adrianxds-ads/adaptive-keyword-speaking'},
       catala:{id:'catala',name:'Català · Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-verbs-catala/',repo:'https://github.com/adrianxds-ads/adaptive-verbs-catala'},
       hoti0108:{id:'hoti0108',name:'HOTI0108',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-hoti0108/',repo:'https://github.com/adrianxds-ads/adaptive-hoti0108'},
       entrenamiento:{id:'entrenamiento',name:'Entrenamiento 2.0',group:'Salud',kind:'hub-module',url:HUB_URL+'apps/entrenamiento/'},

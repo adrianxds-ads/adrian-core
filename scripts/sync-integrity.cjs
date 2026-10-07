@@ -9,7 +9,7 @@ function env(seed={},response={entries:{},revision:1},offline=false){
 }
 (async()=>{
  let e=env({[key]:JSON.stringify({sessions:12,level:4,answers:60})},{entries:{[key]:{value:null,deleted:true,updatedAt:Date.now(),revision:3}},revision:3});
- assert.equal(e.context.window.AdrianSync.version,'1.0.7');await e.context.window.AdrianSync.pull(true);assert.equal(JSON.parse(e.localStorage.getItem(key)).sessions,12,'remote protected deletion blocked');
+ assert.equal(e.context.window.AdrianSync.version,'1.0.8');await e.context.window.AdrianSync.pull(true);assert.equal(JSON.parse(e.localStorage.getItem(key)).sessions,12,'remote protected deletion blocked');
  e=env({[key]:JSON.stringify({sessions:12,level:4,answers:60})},{entries:{[key]:{value:JSON.stringify({sessions:10,level:5,answers:50}),updatedAt:Date.now()+1,revision:3}},revision:3});
  await e.context.window.AdrianSync.pull(true);assert.equal(JSON.parse(e.localStorage.getItem(key)).sessions,12,'incomparable divergent progress stays local');let meta=JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1'));assert(meta.pending[key],'divergence remains queued');assert.equal(meta.pending[key].baseRevision,0,'unknown historical ancestor is never invented');
  e=env({[key]:JSON.stringify({sessions:1,level:2,answers:10})},{entries:{[key]:{value:JSON.stringify({sessions:2,level:3,answers:20}),updatedAt:Date.now()+1,revision:7}},revision:7});
@@ -20,5 +20,5 @@ function env(seed={},response={entries:{},revision:1},offline=false){
  e=env({[key]:'{"sessions":12,"level":4,"answers":60}'},{entries:{[key]:{value:'{"sessions":10,"level":5,"answers":50}',updatedAt:Date.now()+1,revision:3}},revision:3});e.localStorage.setItem(key,'{"sessions":12,"level":4,"answers":60}');
  const fetchChanges=e.context.fetch;e.context.fetch=async(url,opts)=>url.endsWith('/sync')?{ok:true,json:async()=>({accepted:0,acceptedKeys:[],mergedKeys:[],conflictKeys:[key],revision:3})}:fetchChanges(url,opts);
  assert.equal(await e.context.window.AdrianSync.flush(),false,'unresolved conflict is not reported synchronized');assert.equal(e.context.lastStatus.kind,'conflict');assert(JSON.parse(e.localStorage.getItem('adrian_sync_meta_v1')).pending[key],'conflict remains pending');
- console.log('PASS Sync 1.0.7 integrity: protected deletes, conservative divergence, recovery, per-key baselines, offline queue and unresolved-conflict retention');
+ console.log('PASS Sync 1.0.8 integrity: protected deletes, conservative divergence, recovery, per-key baselines, offline queue and unresolved-conflict retention');
 })().catch(e=>{console.error(e);process.exitCode=1;});

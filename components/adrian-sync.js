@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.7';
+const VERSION='1.0.8';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -14,7 +14,7 @@ const nativeClear=Storage.prototype.clear;
 let applying=false,flushTimer=0,pullTimer=0,flushing=false;
 const dirty=new Map();
 const serverMerged=new Set();
-const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1']);
+const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1','keywordSpeakingStatsV1']);
 // Only immutable, identified Cambridge attempts can be joined without inventing counters.
 function mergeProgress(key,left,right){
  if(key!=='cambridgeB2ExerciseStatsV3')return null;
@@ -43,6 +43,7 @@ function progressScore(value,key){
  try{
   const x=JSON.parse(decodeStored(value));if(!x||typeof x!=='object'||Array.isArray(x))return null;
   if(key==='cambridgeB2ExerciseStatsV3')return Array.isArray(x.attempts)?{attempts:x.attempts.length}:null;
+  if(key==='keywordSpeakingStatsV1'){const sessions=Array.isArray(x.sessions)?x.sessions:[],items=x.items&&typeof x.items==='object'?Object.values(x.items):[];return{sessions:sessions.length,attempts:items.reduce((n,a)=>n+(Number(a?.attempts)||0),0),points:items.reduce((n,a)=>n+(Number(a?.points)||0),0),durationSec:sessions.reduce((n,a)=>n+(Number(a?.durationSec)||0),0)};}
   if(key==='adaptive_hoti0108_v1'){const s=x.studyGame;if(!s||typeof s!=='object')return null;return{rounds:(s.roundHistory||[]).length,answers:Object.values(s.attempts||{}).reduce((n,a)=>n+(Number(a.count)||0),0)};}
   return Object.fromEntries(['level','sessions','totalAttempts','answers','studySec','stars','totalGold','turns'].map(k=>[k,Number(x[k])||0]));
  }catch{return null;}
