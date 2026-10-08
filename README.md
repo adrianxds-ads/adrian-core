@@ -37,3 +37,7 @@ Uso: cargar `https://adrianxds-ads.github.io/adrian-core/components/adrian-keybo
 ## Shared performance contract
 
 components/adrian-performance.js exposes window.AdrianPerformance. Each app supplies a small adapter that maps its own pedagogy to common presentation fields (AVS rank, coverage, mastery when valid, recent accuracy, /15 equivalent, timing, sessions, focus and JSON). Missing or invalid concepts must remain null/—; app-specific learning engines are never replaced by Core.
+
+
+## Medallas y estrellas · 1.2.0 · 2026-10-08
+Cada app conserva sus medallas y gana una estrella por cinco oros propios. El Hub y el jardín suman floor(orosApp/5) de cada app; los restos no se agrupan. El componente muestra estrellas locales y migra el alias de Key Word mediante máximo, sin duplicarlo. Cambridge cuenta medallas sobre rondas completas identificadas, deduplica registros, excluye rondas incompletas y conserva los intentos originales. Ledger anterior respaldado antes de la regla v3. Pruebas en adrian-hub/tests/test_star_rule.py.
