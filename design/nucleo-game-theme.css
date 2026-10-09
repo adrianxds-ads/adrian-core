@@ -310,3 +310,15 @@ html body[data-nucleo-game="hoti"] .course-now{
 html body[data-nucleo-game="hoti"] .course-now .course-now-head>strong{
  color:#F2F8FA!important;
 }
+
+/* In the light gameplay HUD, ensure the level/target and timing labels are
+   legible while preserving rainbow ring geometry and answer colors. */
+html body[data-nucleo-game] #gameScreen :is(.leveltag,
+ .qnum span,.qnum small,.question-label,.question-no){
+ color:#315267!important;
+ text-shadow:none!important;
+}
+html body[data-nucleo-game] #gameScreen .timer strong{
+ color:#263F52!important;
+ text-shadow:0 1px rgba(255,255,255,.8);
+}
