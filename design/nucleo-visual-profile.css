@@ -1,0 +1,53 @@
+/* NÚCLEO VISUAL · Perfil de lectura v1 (2026-10-09)
+   Basado en la primera prueba con luz tenue. Valores provisionales.
+   Hoja OPT-IN: no altera quizzes existentes salvo cuando se activa la clase.
+   No impone un fondo claro sobre interfaces oscuras ni toca temporizadores.
+*/
+:root{
+  --nucleo-font:Roboto,"Segoe UI",Arial,system-ui,sans-serif;
+  --nucleo-reading-size:19px;
+  --nucleo-reading-line:1.35;
+  --nucleo-ui-size:18px;
+  --nucleo-small-size:16px;
+  --nucleo-heading-size:24px;
+  --nucleo-touch-min:52px;
+  --nucleo-light-bg:#EAF0F5;
+  --nucleo-light-text:#25282C;
+}
+.nucleo-readable{font-family:var(--nucleo-font)}
+.nucleo-readable .nucleo-reading,
+.nucleo-readable [data-nucleo-reading]{
+  font-family:var(--nucleo-font);
+  font-size:var(--nucleo-reading-size);
+  line-height:var(--nucleo-reading-line);
+  letter-spacing:normal;
+}
+.nucleo-readable .nucleo-ui,
+.nucleo-readable [data-nucleo-ui]{
+  font-family:var(--nucleo-font);
+  font-size:var(--nucleo-ui-size);
+  line-height:1.35;
+}
+.nucleo-readable .nucleo-secondary,
+.nucleo-readable [data-nucleo-secondary]{
+  font-family:var(--nucleo-font);
+  font-size:var(--nucleo-small-size);
+  line-height:1.4;
+}
+.nucleo-readable .nucleo-heading,
+.nucleo-readable [data-nucleo-heading]{
+  font-family:var(--nucleo-font);
+  font-size:var(--nucleo-heading-size);
+  line-height:1.2;
+}
+.nucleo-readable [data-nucleo-touch]{
+  min-height:var(--nucleo-touch-min);
+  min-width:var(--nucleo-touch-min);
+}
+.nucleo-readable .nucleo-light-surface{
+  background:var(--nucleo-light-bg);
+  color:var(--nucleo-light-text);
+}
+@media (prefers-reduced-motion: reduce){
+  .nucleo-readable [data-nucleo-reading]{scroll-behavior:auto}
+}
