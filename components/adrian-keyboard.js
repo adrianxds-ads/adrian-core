@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.AdrianKeyboard)return;
-const VERSION='4.1.2';
+const VERSION='4.1.3';
 const alphaLayouts={
  en:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['Z','X','C','V','B','N','M']],
  es:[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L','Ñ'],['Z','X','C','V','B','N','M']],
@@ -28,6 +28,7 @@ const css=`
 .ad-key:active,.ad-lang:active,.ad-close:active{filter:brightness(1.16);transform:scale(.97)}
 .ad-keyboard-controls{display:grid;grid-template-columns:.8fr .62fr 2.2fr .68fr .62fr .86fr;gap:4px;margin-top:5px}
 .ad-key.control{min-height:53px;font-size:18px;letter-spacing:.02em;border-radius:10px}.ad-key.mode{background:#66538e}.ad-key.punct{background:#8b6926;color:#fff8df}.ad-key.at{background:#7a4e76;color:#fff}.ad-key.space{background:#4aa7c8;color:#071014}.ad-key.back{background:#83363d;font-size:27px}
+.ad-keyboard.english-only .ad-keyboard-float-preview,.ad-keyboard.english-only .ad-keyboard-langs{display:none}
 .ad-accent-pop{position:fixed;z-index:2147483600;display:flex;gap:5px;padding:5px;border-radius:12px;background:#eef5f7;border:2px solid #96ccdf;box-shadow:0 10px 28px rgba(0,0,0,.38)}
 .ad-accent-pop button{min-width:52px;min-height:52px;border:0;border-radius:9px;background:#315a9e;color:#fff;font:950 27px/1 system-ui;touch-action:manipulation}
 body.ad-keyboard-open{padding-bottom:calc(var(--ad-keyboard-height,294px) + var(--ad-keyboard-preview-height,76px) + 18px)!important}
@@ -42,11 +43,13 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 function rowHtml(row,i,extra=''){return '<div class="ad-keyboard-row row-'+i+' '+extra+'" style="--ad-cols:'+row.length+'">'+row.map(k=>'<button class="ad-key" type="button" data-char="'+escapeHtml(k)+'">'+escapeHtml(k)+'</button>').join('')+'</div>';}
 function render(){
  const el=ensure();
- const rows=mode==='alpha'?(alphaLayouts[lang]||alphaLayouts.es):numberRows;
+ const englishOnly=active?.dataset.adKeyboard==='en';
+ el.classList.toggle('english-only',englishOnly);
+ const rows=mode==='alpha'?(alphaLayouts[lang]||alphaLayouts.en):numberRows;
  const rowClasses=mode==='alpha'?['','','']:['numeric','numeric','symbols'];
- el.innerHTML='<div class="ad-keyboard-float-preview" aria-live="polite"></div><div class="ad-keyboard-inner"><div class="ad-keyboard-top"><div class="ad-keyboard-langs">'+['es','ca','en'].map(x=>'<button type="button" class="ad-lang '+(x===lang?'active':'')+'" data-lang="'+x+'">'+x.toUpperCase()+'</button>').join('')+'</div><div class="ad-keyboard-mode-label">'+(mode==='alpha'?'QWERTY · MAYÚSCULAS':'NÚMEROS · SÍMBOLOS')+'</div><button type="button" class="ad-close" data-action="close" aria-label="Cerrar teclado">×</button></div>'+
+ el.innerHTML='<div class="ad-keyboard-float-preview" aria-live="polite"></div><div class="ad-keyboard-inner"><div class="ad-keyboard-top"><div class="ad-keyboard-langs">'+(englishOnly?'':['es','ca','en'].map(x=>'<button type="button" class="ad-lang '+(x===lang?'active':'')+'" data-lang="'+x+'">'+x.toUpperCase()+'</button>').join(''))+'</div><div class="ad-keyboard-mode-label">'+(mode==='alpha'?(englishOnly?'INGLÉS · QWERTY · MAYÚSCULAS':'QWERTY · MAYÚSCULAS'):'NÚMEROS · SÍMBOLOS')+'</div><button type="button" class="ad-close" data-action="close" aria-label="Cerrar teclado">×</button></div>'+
  rows.map((r,i)=>rowHtml(r,i,rowClasses[i])).join('')+
- '<div class="ad-keyboard-controls"><button class="ad-key control mode" type="button" data-action="mode">'+(mode==='alpha'?'123':'ABC')+'</button><button class="ad-key control punct" type="button" data-char=".">.</button><button class="ad-key control space" type="button" data-action="space">ESPACIO</button><button class="ad-key control at" type="button" data-char="@">@</button><button class="ad-key control punct" type="button" data-char="?">?</button><button class="ad-key control back" type="button" data-action="back" aria-label="Borrar">⌫</button></div></div>';
+ '<div class="ad-keyboard-controls"><button class="ad-key control mode" type="button" data-action="mode">'+(mode==='alpha'?'123':'ABC')+'</button><button class="ad-key control punct" type="button" data-char=".">.</button><button class="ad-key control space" type="button" data-action="space">ESPACIO</button><button class="ad-key control at" type="button" data-char="'+(englishOnly?'&#39;':'@')+'">'+(englishOnly?'&#39;':'@')+'</button><button class="ad-key control punct" type="button" data-char="?">?</button><button class="ad-key control back" type="button" data-action="back" aria-label="Borrar">⌫</button></div></div>';
  el.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;mode='alpha';render();syncHeight();haptic();}));
  el.querySelectorAll('[data-char]').forEach(bindCharKey);
  el.querySelector('[data-action="space"]').addEventListener('click',()=>{haptic();insert(' ');});
@@ -154,7 +157,7 @@ function enhance(scope=document){
 const mo=new MutationObserver(m=>m.forEach(x=>x.addedNodes.forEach(n=>{if(n.nodeType===1)enhance(n);})));
 function boot(){enhance(document);mo.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-document.addEventListener('pointerdown',e=>{if(active&&root&&!root.contains(e.target)&&!popover?.contains(e.target)&&e.target!==active&&!e.target.closest?.('[data-ad-keyboard]'))close();},true);
+document.addEventListener('pointerdown',e=>{if(active&&root&&!root.contains(e.target)&&!popover?.contains(e.target)&&e.target!==active&&!e.target.closest?.('[data-ad-keyboard],[data-ad-keyboard-keep-open]'))close();},true);
 window.addEventListener('resize',()=>{if(active)syncHeight();});
 window.visualViewport?.addEventListener('resize',()=>{if(active)syncHeight();});
 window.AdrianKeyboard={version:VERSION,enhance,open,close,keepActiveVisible,setLanguage(value){lang=normaliseLang(value);if(active){render();syncHeight();}},setMode(value){mode=value==='numeric'?'numeric':'alpha';if(active){render();syncHeight();}}};

@@ -28,8 +28,9 @@ Componente maestro: `components/adrian-keyboard.js`.
 - Idiomas ES / CA / EN.
 - `Ñ` directa en español y `Ç` directa en catalán.
 - Acentos y variantes mediante pulsación larga.
-- Fila inferior fija: `123/ABC · . · ESPACIO · @ · ? · ⌫`.
-- Ventana flotante de escritura, grande y separada físicamente del teclado para facilitar la lectura.
+- Fila inferior: `123/ABC · . · ESPACIO · ' · ? · ⌫` en inglés; mantiene `@` en ES/CA.
+- En ejercicios de inglés (`data-ad-keyboard="en"`): QWERTY exclusivo inglés, sin selectores ES/CA y sin ventana flotante duplicada. La respuesta se ve solo en el campo de ejercicio.
+- En campos ES/CA se conservan los idiomas, las variantes y la ventana flotante.
 - Pantalla numérica independiente con coma, exclamación, apóstrofo y símbolos frecuentes.
 - Sin autocorrección, sugerencias ni teclado nativo cuando un campo usa `data-ad-keyboard`.
 
