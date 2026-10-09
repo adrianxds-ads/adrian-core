@@ -42,3 +42,11 @@ components/adrian-performance.js exposes window.AdrianPerformance. Each app supp
 
 ## Medallas y estrellas · 1.2.0 · 2026-10-08
 Cada app conserva sus medallas y gana una estrella por cinco oros propios. El Hub y el jardín suman floor(orosApp/5) de cada app; los restos no se agrupan. El componente muestra estrellas locales y migra el alias de Key Word mediante máximo, sin duplicarlo. Cambridge cuenta medallas sobre rondas completas identificadas, deduplica registros, excluye rondas incompletas y conserva los intentos originales. Ledger anterior respaldado antes de la regla v3. Pruebas en adrian-hub/tests/test_star_rule.py.
+
+## JSON de aprendizaje · 1.0.0 · 2026-10-09
+
+`components/adrian-learning-json.js` ofrece a las ocho apps de estudio un contrato exportable de lectura (`XDS_LEARNING_HANDOFF_V1`), activado únicamente al pulsar JSON: último error, última respuesta, última sesión, progreso e histórico JSON. El botón común de `hub-nav.js` abre el panel y conserva el JSON técnico de diagnóstico como alternativa. Classroom B2 tiene entrada desde Plan / JSON, sin añadir barra sobre el ejercicio.
+
+Los adaptadores leen sólo el progreso ya guardado por cada app (localStorage y, cuando existe, el archivo de IndexedDB de `QuizLearning`). No cambian preguntas, calificaciones, estadísticas, sincronización ni estado. `null` y `missingReason` expresan ausencia de evidencia: no se inventan duraciones ni intentos antiguos. El histórico es local al navegador/dispositivo; no implica replicación cruzada. El JSON se copia o descarga por acción explícita; nada se remite automáticamente a un modelo. Conserva exportaciones particulares de cada app.
+
+Comprobación aislada y sin progreso real: `python scripts/test_learning_json.py` (ocho formatos, 390 y 1280 px, tiempos medidos, errores, copia/modal e intentos archivados sin duplicación). Próximo incremento: añadir campos pedagógicos específicos de cada ejercicio sólo donde estén realmente guardados, sin alterar los algoritmos.

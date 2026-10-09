@@ -44,6 +44,7 @@
   function detectedAppId(){
     const p=location.pathname.toLowerCase();
     if(p.startsWith('/adaptive-english'))return 'english';
+    if(p.startsWith('/adaptive-pizarras'))return 'pizarras';
     if(p.startsWith('/adaptive-phrasal-verbs'))return 'phrasal-verbs';
     if(p.startsWith('/b2-multiple-choice-cloze'))return 'b2-cloze';
     if(p.startsWith('/adaptive-exam'))return 'cambridge';
@@ -70,6 +71,7 @@
     const fallback={
       hub:{id:'hub',name:'Adrián Hub',group:'Sistema',kind:'pwa-hub',url:HUB_URL,repo:'https://github.com/adrianxds-ads/adrian-hub'},
       english:{id:'english',name:'Adaptive English',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-english/',repo:'https://github.com/adrianxds-ads/adaptive-english'},
+      pizarras:{id:'pizarras',name:'Classroom B2',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-pizarras/',repo:'https://github.com/adrianxds-ads/adaptive-pizarras'},
       'phrasal-verbs':{id:'phrasal-verbs',name:'Phrasal Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-phrasal-verbs/',repo:'https://github.com/adrianxds-ads/adaptive-phrasal-verbs'},
       'b2-cloze':{id:'b2-cloze',name:'B2 Multiple-Choice Cloze',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/b2-multiple-choice-cloze/',repo:'https://github.com/adrianxds-ads/b2-multiple-choice-cloze'},
       cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'https://adrianxds-ads.github.io/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
@@ -191,6 +193,20 @@
     return result;
   }
   function openChatgptHub(){window.open(chatgptUrl(),'_blank','noopener');}
+  let jsonLoader=null;
+  async function openLearningJson(){
+    if(!window.AdrianLearningJSON){
+      if(!jsonLoader)jsonLoader=new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src='https://adrianxds-ads.github.io/adrian-core/components/adrian-learning-json.js?v=1.0.0-20261009';
+        s.onload=()=>window.AdrianLearningJSON?resolve():reject(Error('Learning JSON unavailable'));
+        s.onerror=()=>reject(Error('Learning JSON could not load'));
+        document.head.appendChild(s);
+      }).catch(e=>{jsonLoader=null;throw e;});
+      await jsonLoader;
+    }
+    return window.AdrianLearningJSON.openPanel({app:detectedAppId(),technical:copyTechnicalAndOpen});
+  }
 
   window.AdrianTech={
     schema:TECH_SCHEMA,
@@ -198,6 +214,7 @@
     technicalPayload,
     copyTechnicalJson,
     copyTechnicalAndOpen,
+    openLearningJson,
     openChatgptHub,
     getChatGPTProjectUrl:chatgptUrl,
     setChatGPTProjectUrl:setChatgptUrl
@@ -256,10 +273,10 @@
     const onHub=location.hostname==='adrianxds-ads.github.io'&&location.pathname.startsWith('/adrian-hub');
     box.innerHTML=(onHub?'':'<a class="adrian-hub-nav" href="'+HUB_URL+'" aria-label="Volver a Adrián Hub"><span aria-hidden="true">⌂</span><span class="adrian-hub-nav__label">Hub</span></a>')+
       '<button class="adrian-text-toggle" type="button" aria-label="Cambiar tamaño de texto">A+</button>'+
-      '<button class="adrian-tech-button" type="button" aria-label="Copiar JSON técnico y abrir ChatGPT Hub" title="Copiar JSON técnico → ChatGPT Hub">JSON</button>';
+      '<button class="adrian-tech-button" type="button" aria-label="Abrir opciones JSON de aprendizaje y diagnóstico" title="JSON: errores, respuestas, progreso e informe técnico">JSON</button>';
     document.body.appendChild(box);
     box.querySelector('.adrian-text-toggle').onclick=()=>{large=!large;try{localStorage.setItem(READ_KEY,large?'1':'0');}catch(e){}applyReadability();};
-    box.querySelector('.adrian-tech-button').onclick=copyTechnicalAndOpen;
+    box.querySelector('.adrian-tech-button').onclick=()=>openLearningJson().catch(e=>{console.error('Learning JSON could not open',e);const b=box.querySelector('.adrian-tech-button');if(b){b.textContent='!';b.title='JSON no disponible: prueba a actualizar la aplicación';}});
     const status=document.querySelector('#chatgptHubLinkStatus');
     const refreshStatus=()=>{if(status){let saved='';try{saved=localStorage.getItem(CHATGPT_KEY)||'';}catch(e){}status.textContent=/^https:\/\/chatgpt\.com\//i.test(saved)?'Proyecto Hub enlazado · todas las apps usarán este acceso':'Falta vincular una vez la URL exacta del proyecto Hub';}};
     const openBtn=document.querySelector('#openChatgptHubBtn');if(openBtn)openBtn.onclick=openChatgptHub;
