@@ -67,28 +67,28 @@ function countsFromHistory(rows=[]){
 }
 function medalStripHtml(counts={},opts={}){
   const c=normalizeCounts(starAppId()==="cambridge"?(cambridgeMedalCounts()||counts):counts),context=opts.context||"summary",compact=opts.compact!==false,st=starState(c);
-  const items=Object.values(TIERS).map(x=>{const n=c[x.key]||0,earned=n>0;return '<span class="ad-medal-stat '+(earned?"earned ":"locked ")+'ad-medal-stat-'+x.key+'" style="--ach:'+x.color+';--ach-text:'+x.text+'" title="'+x.short+' &middot; '+n+' veces conseguida"><i>'+n+'</i><b>'+x.short+'</b></span>';}).join("");
-  const star='<span class="ad-medal-stat '+(st.localStars>0?"earned ":"locked ")+'ad-medal-stat-star" title="'+st.localStars+' estrellas de esta aplicación · '+st.progress+'/'+STAR_STEP+' oros hacia la siguiente"><i aria-hidden="true">&#9733;</i><b><em>'+st.localStars+'</em></b></span>';
+  const items=Object.values(TIERS).map(x=>{const n=x.key==="gold"?Math.max(c.gold||0,st.localGold||0):c[x.key]||0,earned=n>0;return '<span class="ad-medal-stat '+(earned?"earned ":"locked ")+'ad-medal-stat-'+x.key+'" style="--ach:'+x.color+';--ach-text:'+x.text+'" title="'+x.short+' &middot; '+n+' veces conseguida"><i>'+n+'</i><b>'+x.short+'</b></span>';}).join("");
+  const star='<span class="ad-medal-stat '+(st.localStars>0?"earned ":"locked ")+'ad-medal-stat-star" title="'+st.localStars+' estrellas de esta aplicación · '+st.progress+'/'+STAR_STEP+' oros hacia la siguiente"><i aria-hidden="true" style="color:'+(st.localStars>0?'#C28A07':'#86939D')+'!important;background:transparent!important;border:0!important;box-shadow:none!important;text-shadow:0 1px 0 #FFF7D8,0 0 12px rgba(231,191,87,.45)!important">&#9733;</i><b><em>'+st.localStars+'</em></b></span>';
   return '<div class="ad-medal-strip '+(compact?"compact ":"")+'context-'+context+'" aria-label="Medallas y estrellas acumuladas">'+items+star+'</div>';
 }
 function legendHtml(counts={}){return medalStripHtml(counts,{context:"target",compact:true});}
 function badgeHtml(correct,total=15,counts=null){
-  const x=tier(correct,total);if(!x)return"";const eq=15*Number(correct)/Number(total),c=counts?normalizeCounts(counts):null,n=Math.max(1,Math.floor(Number(c?.[x.key])||1));
+  const x=tier(correct,total);if(!x)return"";const eq=15*Number(correct)/Number(total),c=counts?normalizeCounts(counts):null,ledger=readStarLedger(),earnedGold=Math.max(Number(c?.gold)||0,Number(ledger.apps[starAppId()])||0),n=Math.max(1,Math.floor(x.key==="gold"?earnedGold:(Number(c?.[x.key])||1)));
   return '<div class="ad-achievement ad-achievement-'+x.key+'" style="--ach:'+x.color+';--ach-text:'+x.text+'"><span class="ad-medal"><i>'+n+'</i></span><div><small>MEDALLA #'+n+'</small><b>'+x.label+'</b><em>'+Number(correct)+'/'+Number(total)+(Number(total)===15?'':' / '+eq.toFixed(1)+'/15 equivalent')+'</em></div></div>';
 }
 function play(toneFn,correct,total=15){
   const x=tier(correct,total);if(!x)return false;
-  const notes=x.key==="blue"?[523.25,659.25,783.99]:x.key==="violet"?[587.33,739.99,880,1174.66]:[659.25,783.99,1046.5,1318.5,1567.98];
-  if(typeof toneFn==="function"){notes.forEach((f,i)=>toneFn(f,i===notes.length-1?.20:.09,x.key==="gold"?.028:.022,i%2?"sine":"triangle",.38+i*.075));return true;}
+  const notes=x.key==="blue"?[523.25,659.25,783.99]:x.key==="violet"?[587.33,739.99,880,1174.66]:[659.25,783.99,1046.5,1318.5,1567.98];const gold=Math.floor(Number(readStarLedger().apps[starAppId()])||0),milestone=x.key==="gold"&&gold>0&&gold%STAR_STEP===0;const fanfare=milestone?[1760,2093,2637]:[];
+  if(typeof toneFn==="function"){notes.forEach((f,i)=>toneFn(f,i===notes.length-1?.20:.09,x.key==="gold"?.028:.022,i%2?"sine":"triangle",.38+i*.075));fanfare.forEach((f,i)=>toneFn(f,i===2?.28:.13,.027,i%2?"triangle":"sine",.82+i*.11));return true;}
   try{
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;const a=window.__adAchievementAudio||(window.__adAchievementAudio=new AC());if(a.state==="suspended")a.resume();
-    notes.forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+.18+i*.075;o.type=i%2?"sine":"triangle";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(x.key==="gold"?.028:.022,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.14);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.16)});return true;
+    notes.forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+.18+i*.075;o.type=i%2?"sine":"triangle";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(x.key==="gold"?.028:.022,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.14);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.16)});fanfare.forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+.82+i*.11;o.type=i%2?"triangle":"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.025,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+(i===2?.27:.14));o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.30)});return true;
   }catch{return false;}
 }
 function celebrate(correct,total=15,opts={}){
  const mount=opts.mount;if(!mount)return Promise.resolve();
- const earned=tier(correct,total),badge=badgeHtml(correct,total,opts.counts),label=earned?earned.label:"SESIÓN COMPLETA";
- mount.innerHTML='<div class="ad-celebration" style="--ach:'+(earned?.color||'#57965A')+'"><div class="ad-celebration-title">'+label+'</div><div class="ad-celebration-score">'+Number(correct)+'/'+Number(total)+'</div>'+badge+'<p>'+String(opts.label||"")+'</p><button type="button" class="ad-celebration-next">Continuar</button></div>';
+ const earned=tier(correct,total),badge=badgeHtml(correct,total,opts.counts),label=earned?earned.label:"SESIÓN COMPLETA";const gold=Math.floor(Number(opts.counts?.gold)||0),unlock=earned?.key==="gold"&&gold>0&&gold%STAR_STEP===0?'<div class="ad-star-unlock" role="status">★ ESTRELLA CONSEGUIDA · '+gold+' OROS</div>':"";
+ mount.innerHTML='<div class="ad-celebration" style="--ach:'+(earned?.color||'#57965A')+'"><div class="ad-celebration-title">'+label+'</div><div class="ad-celebration-score">'+Number(correct)+'/'+Number(total)+'</div>'+badge+unlock+'<p>'+String(opts.label||"")+'</p><button type="button" class="ad-celebration-next">Continuar</button></div>';
  return new Promise(resolve=>{let done=false,timer;const finish=()=>{if(done)return;done=true;clearTimeout(timer);resolve();};mount.querySelector('button').onclick=finish;timer=setTimeout(finish,earned?.key==='gold'?2800:earned?2200:1200);});
 }
 
@@ -110,8 +110,8 @@ function inject(){
 #startScreen .panel{background:radial-gradient(ellipse at 10% 0%,rgba(var(--rating-rank-rgb,var(--ai-rgb,87,150,90)),.32),transparent 60%),linear-gradient(145deg,#203e2c,#10251c)!important;border-color:rgba(143,215,176,.5)!important}#startScreen .primary{background:linear-gradient(120deg,#91dab0,var(--rating-rank-color,var(--ai-color,#57965A)))!important;color:#082014!important;box-shadow:0 5px 22px rgba(87,150,90,.3)}#startScreen .kicker{color:#e8ce86!important}#startScreen .level-title-row h1{color:#e6f3df!important;font-size:clamp(38px,9vw,60px)!important}
 #endScreen .panel,#resultScreen .panel{background:radial-gradient(ellipse at 90% 0%,rgba(var(--rating-rank-rgb,var(--ai-rgb,87,150,90)),.26),transparent 55%),linear-gradient(145deg,#1d392b,#10251c)!important}#endScreen:has(.ad-achievement-gold) .panel,#resultScreen:has(.ad-achievement-gold) .panel{background:radial-gradient(ellipse at 50% 0%,rgba(231,191,87,.36),transparent 65%),linear-gradient(145deg,#332d15,#10251c)!important;border-color:#e7bf57!important}.ad-achievement small,.ad-achievement em{font-size:14px}.ad-medal-stat b{font-size:12px!important}.chart:has(>.hub-chart){height:auto!important;background:transparent!important}
 @media(prefers-reduced-motion:reduce){.ad-celebration,.ad-achievement,.ad-achievement .ad-medal,.ad-achievement .ad-medal i{animation:none!important}}
-`;document.head.appendChild(s);
+`;s.textContent+=".ad-star-unlock{display:block;width:fit-content;max-width:100%;margin:14px auto;padding:12px 18px;border:2px solid #D8A520;border-radius:16px;background:linear-gradient(125deg,#FFF3C2,#FFE0A0);box-shadow:0 6px 20px rgba(147,103,16,.19);color:#6E4905;font:900 19px/1.35 Roboto,system-ui,sans-serif;letter-spacing:.025em}";document.head.appendChild(s);
 }
 inject();
-window.AdrianAchievements=Object.freeze({version:"1.2.0",cambridgeMedalCounts,normalizeStarApps,tier,badgeHtml,legendHtml,medalStripHtml,countsFromHistory,play,celebrate,starState,starStep:STAR_STEP,tiers:TIERS});
+window.AdrianAchievements=Object.freeze({version:"1.2.1",cambridgeMedalCounts,normalizeStarApps,tier,badgeHtml,legendHtml,medalStripHtml,countsFromHistory,play,celebrate,starState,starStep:STAR_STEP,tiers:TIERS});
 })();
