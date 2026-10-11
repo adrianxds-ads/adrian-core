@@ -21,7 +21,9 @@
       ".nucleo-progress{box-sizing:border-box;position:relative!important;display:block!important;width:100%;height:14px;border-radius:99px;overflow:hidden;border:1px solid #b58c21;background:#dce4e9;box-shadow:inset 0 1px 3px rgba(14,21,27,.2)}",
       ".nucleo-progress-fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#f0ca63,#e7b72c);border-radius:99px;transition:width .22s linear}",
       ".nucleo-progress::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,transparent calc(100% - 1px),rgba(37,40,44,.34) calc(100% - 1px));background-size:var(--nucleo-cell,6.6667%) 100%}",
-      "@media(prefers-reduced-motion:reduce){.nucleo-progress-fill{transition:none}}"
+      "#answers.nucleo-soft-reveal .answer{animation:nucleoOptionReveal .22s ease-out both}",
+      "@keyframes nucleoOptionReveal{from{opacity:.7;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}",
+      "@media(prefers-reduced-motion:reduce){.nucleo-progress-fill{transition:none}#answers.nucleo-soft-reveal .answer{animation:none}}"
     ].join("");
     document.head.appendChild(style);
     let bar=null,fill=null;
@@ -48,7 +50,9 @@
       const mode=reading?"reading":"answer",key=question?.textContent||"";
       const value=Number.parseFloat(String(clock.textContent).replace(",","."));
       if(mode!==phase||key!==questionKey){
+        const revealing=phase==="reading"&&mode==="answer"&&key===questionKey;
         phase=mode;questionKey=key;started=performance.now();
+        if(answers){answers.classList.remove("nucleo-soft-reveal");if(revealing){void answers.offsetWidth;answers.classList.add("nucleo-soft-reveal");}}
         if(!reading&&Number.isFinite(value)&&value>0)limit=Math.max(1,Math.ceil(value));
       }
       if(segments){
