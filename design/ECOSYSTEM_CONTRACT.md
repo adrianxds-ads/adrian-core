@@ -16,3 +16,7 @@ El sistema se diseña para 10.000 niveles, 50 niveles por hito y 200 hitos. Las 
 La lógica específica permanece en el repositorio de cada app. Los patrones corporativos seguros se promueven a Adrián Core. No se bifurcan copias independientes del registro del jardín. Nuevas especies se añaden al registro común y al renderizador compartido.
 
 Adaptive English conserva su Practice Tree actual mientras sea estable. Su integración con el jardín común debe evitar regresiones y no exige reescribir el árbol existente.
+
+## Núcleo OLED compartido · 2026-10-11
+
+El entorno de juego usa `nucleo-oled-shell.css` como adaptador visual después de Luminous 1.3; conserva superficies claras con tinta oscura para lectura de preguntas, Coach, errores y documentos HOTI. Se prueba a 360, 390, 412 y 1280 píxeles y no modifica la lógica ni el almacenamiento. La fuente canónica reside en Adrián Core, con copias idénticas para funcionamiento offline de cada PWA.
