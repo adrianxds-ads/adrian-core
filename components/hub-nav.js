@@ -25,6 +25,20 @@
   @media(max-width:420px){.adrian-hub-nav__label{display:none}.adrian-hub-nav{padding:0 13px}.adrian-tech-button{min-width:46px;padding:0 10px}}
   `;
   const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
+  const routeStyle=document.createElement("style");
+  routeStyle.id="nucleo-routes-css";
+  routeStyle.textContent=[
+    ".adrian-tools:has(.nucleo-route-nav){position:sticky!important;top:0!important;left:0!important;bottom:auto!important;display:flex!important;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-start;width:100%;min-height:44px;padding:4px max(6px,env(safe-area-inset-right)) 4px max(6px,env(safe-area-inset-left));background:rgba(234,240,245,.97)!important;border-bottom:1px solid #bac6d0;box-shadow:0 3px 14px rgba(21,29,36,.12)}",
+    ".adrian-tools:has(.nucleo-route-nav)>.adrian-hub-nav{display:none!important}",
+    ".nucleo-route-nav{box-sizing:border-box;display:flex;gap:5px;align-items:center;flex:1 1 190px;min-width:0;margin:0;padding:0;background:none}",
+    ".nucleo-route-nav>a,.nucleo-route-nav>button{box-sizing:border-box;appearance:none;display:flex;align-items:center;justify-content:center;min-width:0;min-height:36px;flex:1;padding:6px 8px;border:1px solid #b8c8d4;border-radius:9px;background:#f9fbfc;color:#25282c!important;font:750 13px/1.15 Roboto,system-ui,sans-serif;text-decoration:none!important;box-shadow:none;cursor:pointer;touch-action:manipulation}",
+    ".nucleo-route-nav>button:focus-visible,.nucleo-route-nav>a:focus-visible{outline:3px solid #e7bf57;outline-offset:2px}",
+    ".adrian-tools:has(.nucleo-route-nav) .adrian-text-toggle,.adrian-tools:has(.nucleo-route-nav) .adrian-tech-button{box-sizing:border-box;min-height:36px;height:36px;min-width:40px;padding:0 7px;border-radius:9px;font-size:12px}",
+    ".nucleo-route-footer{position:relative;z-index:10;width:100%;margin:18px auto 0;padding:8px max(8px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));border-top:1px solid #bdcbd5;background:#eaf0f5}",
+    ".nucleo-route-footer>a,.nucleo-route-footer>button{min-height:42px;font-size:14px}",
+    "@media(max-width:380px){.nucleo-route-nav>a,.nucleo-route-nav>button{font-size:12px;padding:5px}.adrian-tools:has(.nucleo-route-nav){gap:4px}}"
+  ].join("");
+  document.head.appendChild(routeStyle);
 
   function rememberError(entry){
     recentErrors.push({...entry,ts:new Date().toISOString()});
@@ -274,7 +288,30 @@
     box.innerHTML=(onHub?'':'<a class="adrian-hub-nav" href="'+HUB_URL+'" aria-label="Volver a Adrián Hub"><span aria-hidden="true">⌂</span><span class="adrian-hub-nav__label">Hub</span></a>')+
       '<button class="adrian-text-toggle" type="button" aria-label="Cambiar tamaño de texto">A+</button>'+
       '<button class="adrian-tech-button" type="button" aria-label="Abrir opciones JSON de aprendizaje y diagnóstico" title="JSON: errores, respuestas, progreso e informe técnico">JSON</button>';
-    document.body.appendChild(box);
+    if(!onHub){
+      const appHome=new URL(".",location.href).href;
+      const nav=document.createElement("nav");
+      nav.className="nucleo-route-nav";
+      nav.setAttribute("aria-label","Navegacion del juego");
+      nav.innerHTML='<button type="button" class="nucleo-go-back" aria-label="Volver a la pagina anterior">← Atrás</button><a href="'+appHome+'" aria-label="Ir al panel de la aplicacion">Panel</a><a href="'+HUB_URL+'" aria-label="Ir al Hub">Hub</a>';
+      box.prepend(nav);
+      document.body.prepend(box);
+      const footer=nav.cloneNode(true);
+      footer.classList.add("nucleo-route-footer");
+      document.body.appendChild(footer);
+      [nav,footer].forEach(bar=>{
+        bar.querySelector(".nucleo-go-back").addEventListener("click",()=>{
+          if(history.length>1)history.back();
+          else location.assign(appHome);
+        });
+      });
+    }else document.body.appendChild(box);
+    if(document.querySelector("#timerText,#quizCountdown")){
+      const timerModule=document.createElement("script");
+      timerModule.src="https://adrianxds-ads.github.io/adrian-core/components/hub-quiz-ux.js?v=20261011-1";
+      timerModule.async=true;
+      document.head.appendChild(timerModule);
+    }
     box.querySelector('.adrian-text-toggle').onclick=()=>{large=!large;try{localStorage.setItem(READ_KEY,large?'1':'0');}catch(e){}applyReadability();};
     box.querySelector('.adrian-tech-button').onclick=()=>openLearningJson().catch(e=>{console.error('Learning JSON could not open',e);const b=box.querySelector('.adrian-tech-button');if(b){b.textContent='!';b.title='JSON no disponible: prueba a actualizar la aplicación';}});
     const status=document.querySelector('#chatgptHubLinkStatus');
