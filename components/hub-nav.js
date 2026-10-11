@@ -308,7 +308,7 @@
     }else document.body.appendChild(box);
     if(document.querySelector("#timerText,#quizCountdown")&&!document.querySelector('script[src*="/hub-quiz-ux.js"]')){
       const timerModule=document.createElement("script");
-      timerModule.src="https://adrianxds-ads.github.io/adrian-core/components/hub-quiz-ux.js?v=20261011-1";
+      timerModule.src="https://adrianxds-ads.github.io/adrian-core/components/hub-quiz-ux.js?v=20261011-2";
       timerModule.async=true;
       document.head.appendChild(timerModule);
     }

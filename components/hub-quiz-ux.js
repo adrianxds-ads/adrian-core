@@ -14,7 +14,7 @@
     style.id="nucleo-linear-clock-css";
     style.textContent=[
       "#timer.nucleo-clock-hidden{display:none!important}",
-      "#segments.nucleo-reading-segments{display:grid!important;grid-template-columns:repeat(60,minmax(0,1fr))!important;gap:2px!important;min-height:12px!important}",
+      "#segments.nucleo-reading-segments{display:grid!important;grid-template-columns:repeat(var(--nucleo-read-steps,60),minmax(0,1fr))!important;gap:2px!important;min-height:12px!important}",
       "#quizClock.nucleo-linear-clock{position:relative!important;inset:auto!important;transform:none!important;flex:1 1 120px!important;display:block!important;width:100%!important;min-width:90px!important;max-width:100%!important;height:14px!important;min-height:14px!important;aspect-ratio:auto!important;margin:6px 0!important;padding:0!important;border:0!important;border-radius:999px!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;animation:none!important}",
       "#quizClock.nucleo-linear-clock::before,#quizClock.nucleo-linear-clock::after{content:none!important;display:none!important}",
       "#quizClock.nucleo-linear-clock > :not(.nucleo-progress){display:none!important}",
@@ -57,17 +57,19 @@
       }
       if(segments){
         if(!reading){segments.classList.remove("nucleo-reading-segments");return;}
+        const readSeconds=Math.max(1,Math.min(60,Math.ceil(Number(answers?.dataset.nucleoReadSeconds)||60)));
         segments.classList.add("seconds-bar","nucleo-reading-segments");
-        if(segments.children.length!==60||segments.dataset.secondsTotal!=="60"){
-          segments.replaceChildren(...Array.from({length:60},()=>{
+        segments.style.setProperty("--nucleo-read-steps",String(readSeconds));
+        if(segments.children.length!==readSeconds||segments.dataset.secondsTotal!==String(readSeconds)){
+          segments.replaceChildren(...Array.from({length:readSeconds},()=>{
             const element=document.createElement("i");element.className="seg";return element;
           }));
-          segments.dataset.secondsTotal="60";
+          segments.dataset.secondsTotal=String(readSeconds);
           segments.setAttribute("role","progressbar");
-          segments.setAttribute("aria-valuemin","0");segments.setAttribute("aria-valuemax","60");
+          segments.setAttribute("aria-valuemin","0");segments.setAttribute("aria-valuemax",String(readSeconds));
         }
-        const elapsed=Math.max(0,Math.min(60,Math.floor((performance.now()-started)/1000)));
-        for(let i=0;i<60;i++)segments.children[i].classList.toggle("on",i<elapsed);
+        const elapsed=Math.max(0,Math.min(readSeconds,Math.floor((performance.now()-started)/1000)));
+        for(let i=0;i<readSeconds;i++)segments.children[i].classList.toggle("on",i<elapsed);
         segments.setAttribute("aria-valuenow",String(elapsed));
         segments.setAttribute("aria-valuetext","Lectura previa");
         return;
