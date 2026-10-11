@@ -29,3 +29,6 @@ La hoja local debe coincidir byte a byte con Core. Pruebas de portada, informaci
 
 ## Luminous 1.2 · escritos y Coach (2026-10-11)
 Se unifica el contraste de los informes del Coach, los patrones de error, los ejemplos y los campos JSON en las ocho copias de la hoja canónica. Fondos claros opacos, tinta #25282C, texto de lectura 19 px y apoyo 16 px. Se mantienen sin cambios preguntas, tiempos, puntuaciones, progreso, rachas históricas y colores semánticos.
+
+## Luminous 1.3 · Coach y estimación (2026-10-11)
+Auditoría en navegador de la pantalla My Coach detectó el bloque de estimación con tipografía heredada clara de 12-14 px sobre degradado transparente. En la plantilla compartida se corrigen tanto la estimación y sus escenarios como los subtítulos y párrafos del Coach: tinta oscura #25282C/#334554, superficies sólidas #F2F7FA, lectura 19 px y secundarios 16 px. Se amplía la comprobación a 360/390/412/1280 px. No se modifican bancos, respuestas, niveles, temporizadores, medallas, progreso ni sincronización.
