@@ -298,8 +298,15 @@
       document.body.prepend(box);
       const footer=nav.cloneNode(true);
       footer.classList.add("nucleo-route-footer");
-      document.body.appendChild(footer);
+      if(detectedAppId()!=="english")document.body.appendChild(footer);
       [nav,footer].forEach(bar=>{
+        const panel=bar.querySelector('a[aria-label="Ir al panel de la aplicacion"]');
+        if(panel&&detectedAppId()==="english")panel.addEventListener("click",event=>{
+          if(!document.getElementById("gameScreen")?.classList.contains("hidden")){
+            const abort=document.getElementById("abortSessionBtn");
+            if(abort){event.preventDefault();abort.click();}
+          }
+        });
         bar.querySelector(".nucleo-go-back").addEventListener("click",()=>{
           if(history.length>1)history.back();
           else location.assign(appHome);
