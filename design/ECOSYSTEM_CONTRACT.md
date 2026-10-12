@@ -1,5 +1,7 @@
 # Contrato visual del ecosistema Adrián Hub
 
+> **Nota de actualización, 12/10/2026:** este archivo conserva el contrato histórico y la lógica de jardín/temporizadores. El diseño objetivo actualizado para próximas intervenciones está consolidado en **NUCLEO_DESIGN_SYSTEM.md** (fases 01–06), con portada oscura y quiz claro. No se debe interpretar ese diseño como implantado ni usar esta nota para modificar algoritmos, sesiones o temporizadores sin las pruebas del piloto.
+
 Adaptive English es la aplicación matriz. Antes de diseñar una app nueva se reutilizan primero Adrián Visual System, Adrián Core y los componentes comunes existentes.
 
 La identidad compartida incluye, cuando sea aplicable: paleta AVS, fondos oscuros, jerarquía tipográfica, tarjetas, botones, bordes, sombras, navegación, pantallas de pregunta y resultado, indicadores, medallas, animaciones, transiciones, sonidos y filosofía de interacción. Compartir identidad no obliga a copiar literalmente la interfaz: cada app puede adaptar la composición a su contenido.
