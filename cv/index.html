@@ -48,7 +48,7 @@ body{padding:28px}
   top:5mm;
   height:31mm;
   color:#335c53;
-  opacity:.42;
+  opacity:.48;
   pointer-events:none;
   z-index:1;
 }
@@ -524,11 +524,23 @@ body{padding:28px}
   .line-art{display:none}
 
   .barcelona-skyline{
-    left:4px;
-    right:4px;
-    top:6px;
-    height:88px;
-    opacity:.32;
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    height:68px;
+    margin:-8px -4px -8px;
+    opacity:.46;
+    z-index:1;
+  }
+
+  .barcelona-skyline::after{
+    bottom:4px;
+    opacity:.65;
+  }
+
+  .skyline-thin{
+    stroke-width:2.05;
   }
 
   .section{
