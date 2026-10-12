@@ -32,3 +32,6 @@ Se unifica el contraste de los informes del Coach, los patrones de error, los ej
 
 ## Luminous 1.3 · Coach y estimación (2026-10-11)
 Auditoría en navegador de la pantalla My Coach detectó el bloque de estimación con tipografía heredada clara de 12-14 px sobre degradado transparente. En la plantilla compartida se corrigen tanto la estimación y sus escenarios como los subtítulos y párrafos del Coach: tinta oscura #25282C/#334554, superficies sólidas #F2F7FA, lectura 19 px y secundarios 16 px. Se amplía la comprobación a 360/390/412/1280 px. No se modifican bancos, respuestas, niveles, temporizadores, medallas, progreso ni sincronización.
+
+## Identidad corporativa de los juegos · 12/10/2026
+Los tonos exactos provienen del campo brandColor de adrian-hub/apps.json. --ng-brand aplica el color de identidad al borde de portada y --ng-wash tiñe ligeramente el fondo. --ng-accent usa una mezcla al 50 % con tinta oscura #142938 para que los botones blancos mantengan contraste; no repintar medallas, correctas/incorrectas ni temporizadores. CSS canónico idéntico en los ocho juegos. Català Conjuga utiliza el amarillo de la materia catalana; actualmente el Hub muestra la biblioteca de podcasts en ese color.
