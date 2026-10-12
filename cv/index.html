@@ -41,38 +41,49 @@ body{padding:28px}
 
 /* ---------- HEADER ---------- */
 
-.barcelona-skyline{
+.header-ornament{
   position:absolute;
-  left:9mm;
-  right:9mm;
+  left:8mm;
+  right:8mm;
   top:4mm;
-  height:32mm;
-  color:#335c53;
-  opacity:.25;
+  height:30mm;
   pointer-events:none;
   z-index:0;
+  opacity:.16;
+  color:#335c53;
 }
 
-.barcelona-skyline svg{
-  display:block;
+.header-ornament svg{
   width:100%;
   height:100%;
+  display:block;
+  overflow:visible;
 }
 
-.barcelona-skyline::after{
-  content:"";
-  position:absolute;
-  left:5%;
-  right:5%;
-  bottom:2mm;
-  height:.55px;
-  background:linear-gradient(90deg, rgba(51,92,83,0), rgba(51,92,83,.25) 24%, rgba(51,92,83,.25) 76%, rgba(51,92,83,0));
+.ornament-wave{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:.8;
+  vector-effect:non-scaling-stroke;
 }
 
-.skyline-horizon{stroke-width:.65; opacity:.38}
-.skyline-thin{stroke-width:1.25}
-.skyline-landmark{stroke-width:1.7}
-.skyline-faint{stroke-width:.65; opacity:.32}
+.ornament-wave.soft{
+  opacity:.55;
+  stroke-width:.55;
+}
+
+.ornament-geo{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:.65;
+  opacity:.48;
+  vector-effect:non-scaling-stroke;
+}
+
+.ornament-dot{
+  fill:currentColor;
+  opacity:.42;
+}
 
 .header{
   background:transparent;
@@ -522,26 +533,14 @@ body{padding:28px}
   }
 
   .line-art{display:none}
-
-  .barcelona-skyline{
-    position:absolute;
+  .header-ornament{
     left:2px;
     right:2px;
-    top:5px;
-    height:88px;
-    margin:0;
-    opacity:.27;
-    z-index:0;
+    top:6px;
+    height:82px;
+    opacity:.12;
   }
-
-  .skyline-thin{
-    stroke-width:1.35;
-  }
-
-  .skyline-landmark{
-    stroke-width:1.85;
-  }
-  .section{
+.section{
     margin-top:20px;
   }
 
@@ -708,150 +707,14 @@ body{padding:28px}
 
 <body>
 <main class="page">
-
-  <div class="line-art" aria-hidden="true">
-    <svg viewBox="0 0 700 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="#173f37" stroke-width="2">
-        <path d="M10 72 C125 25, 250 125, 370 60 S560 35, 690 85"/>
-        <path d="M5 105 C135 62, 255 160, 380 95 S575 70, 695 120"/>
-        <path d="M25 138 C150 100, 270 190, 395 130 S580 110, 685 155"/>
-        <path d="M45 173 C170 140, 285 215, 410 166 S590 145, 670 190"/>
-      </g>
-    </svg>
-  </div>
-
-  <div class="barcelona-skyline" aria-hidden="true">
-    <svg viewBox="0 0 1200 150" xmlns="http://www.w3.org/2000/svg" fill="none">
-      <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-
-        <path class="skyline-horizon" d="M0 126 H1200"/>
-
-        <!-- zona urbana izquierda baja: deja respirar el nombre -->
-        <path class="skyline-thin" d="
-          M8 126
-          L8 114 L30 114
-          L30 108 L50 108
-          L50 117
-          L78 117
-          L78 104 L92 104
-          L92 94 L104 94
-          L104 126
-
-          L140 126
-          L140 111 L159 111
-          L159 101 L175 101
-          L175 126
-
-          L210 126
-          L210 109 L228 109
-          L228 98 L244 98
-          L244 126
-
-          L282 126
-          L282 107 L300 107
-          L300 96 L316 96
-          L316 126
-
-          L355 126
-          L355 111 L374 111
-          L374 100 L391 100
-          L391 126
-
-          L430 126
-          L430 108 L448 108
-          L448 97 L465 97
-          L465 126
-
-          L505 126
-        "/>
-
-        <!-- relieve de Barcelona / Collserola -->
-        <path class="skyline-faint" d="
-          M500 110
-          C545 102 575 88 606 79
-          C636 70 668 69 699 75
-          C730 82 753 93 780 97
-          C807 101 832 94 858 82
-          C884 70 911 63 938 65
-          L955 46
-          L972 66
-          C995 69 1017 80 1035 92
-        "/>
-
-        <!-- Sagrada Família desplazada a la derecha -->
-        <path class="skyline-landmark" d="
-          M705 126
-          L712 108
-          L719 108
-          L724 89
-          L730 108
-          L737 108
-          L743 61
-          L749 108
-          L756 108
-          L763 35
-          L770 108
-          L777 108
-          L784 70
-          L791 108
-          L798 108
-          L805 48
-          L812 108
-          L819 108
-          L826 126
-        "/>
-
-        <!-- casco histórico / cúpulas -->
-        <path class="skyline-thin" d="
-          M842 126
-          L842 104
-          L858 104
-          L858 90
-          L871 90
-          L871 126
-
-          L894 126
-          L894 101
-          L910 101
-          L910 86
-          L923 86
-          L923 126
-
-          L947 126
-          L947 109
-          L963 109
-          L963 96
-          L976 96
-          L976 126
-        "/>
-
-        <!-- Torre Glòries -->
-        <path class="skyline-landmark" d="
-          M1027 126
-          L1027 56
-          C1027 41 1037 26 1048 16
-          C1059 26 1069 41 1069 56
-          L1069 126
-        "/>
-
-        <!-- cierre urbano derecho -->
-        <path class="skyline-thin" d="
-          M1093 126
-          L1093 104
-          L1110 104
-          L1110 92
-          L1124 92
-          L1124 126
-
-          L1152 126
-          L1152 111
-          L1168 111
-          L1168 99
-          L1183 99
-          L1183 126
-        "/>
-
-      </g>
+<div class="header-ornament" aria-hidden="true">
+    <svg viewBox="0 0 1200 150" xmlns="http://www.w3.org/2000/svg">
+      <path class="ornament-wave" d="M15 104 C145 52 260 126 390 78 S640 42 770 82 S1005 112 1185 58"/>
+      <path class="ornament-wave soft" d="M0 120 C155 76 275 142 430 96 S700 64 845 101 S1040 128 1200 82"/>
+      <path class="ornament-geo" d="M842 42 L900 42 L900 100 L958 100"/>
+      <path class="ornament-geo" d="M1000 56 Q1042 18 1084 56"/>
+      <circle class="ornament-dot" cx="900" cy="42" r="2.4"/>
+      <circle class="ornament-dot" cx="958" cy="100" r="2.2"/>
     </svg>
   </div>
 
