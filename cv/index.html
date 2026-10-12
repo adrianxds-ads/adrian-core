@@ -959,6 +959,107 @@ body{padding:28px}
     font-size:14px;
   }
 }
+/* FINAL PRINT OVERRIDE */
+
+@media print{
+  .page{
+    padding:5mm 10mm 4mm !important;
+  }
+  .header{
+    padding-top:2mm !important;
+    padding-bottom:2.4mm !important;
+  }
+  .section{
+    margin-top:2.35mm !important;
+  }
+  .section-title{
+    margin-bottom:1.25mm !important;
+    font-size:10.8pt !important;
+  }
+  .profile{
+    font-size:7.9pt !important;
+    line-height:1.20 !important;
+    margin-bottom:.2mm !important;
+  }
+  .entry{
+    margin-bottom:1.9mm !important;
+  }
+
+  .education .timeline{
+    margin-left:0 !important;
+    padding-left:0 !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:2.3mm !important;
+  }
+  .education .timeline::before,
+  .education .entry::before{
+    display:none !important;
+  }
+  .education .entry{
+    margin:0 !important;
+    padding:0 1.2mm 0 0 !important;
+  }
+  .education .date{
+    position:static !important;
+    width:auto !important;
+    margin:0 0 .45mm !important;
+    font-size:6.9pt !important;
+  }
+  .education .edu-kicker{
+    font-size:8.25pt !important;
+    line-height:1.08 !important;
+  }
+  .education .edu-title{
+    margin-top:.3mm !important;
+    font-size:6.95pt !important;
+    line-height:1.10 !important;
+  }
+  .education .place{
+    margin-top:.2mm !important;
+    font-size:6.7pt !important;
+  }
+  .education .edu-small{
+    margin-top:.4mm !important;
+    font-size:6.25pt !important;
+    line-height:1.10 !important;
+  }
+
+  .education ~ .section{
+    display:inline-block !important;
+    width:24.2% !important;
+    vertical-align:top !important;
+    margin-top:1.4mm !important;
+    padding-right:1.5mm !important;
+  }
+  .education ~ .section .section-title{
+    font-size:8.65pt !important;
+    margin-bottom:.8mm !important;
+    gap:1.5mm !important;
+  }
+  .education ~ .section .languages-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:.45mm !important;
+  }
+  .education ~ .section .language{
+    padding:.45mm .7mm .4mm !important;
+  }
+  .education ~ .section .language-name{
+    font-size:6.7pt !important;
+  }
+  .education ~ .section .language-level{
+    margin-top:.15mm !important;
+    font-size:5.85pt !important;
+  }
+  .education ~ .section .tags{
+    gap:.45mm !important;
+  }
+  .education ~ .section .tag{
+    font-size:5.9pt !important;
+    padding:.35mm .85mm !important;
+  }
+}
+
 </style>
 </head>
 
