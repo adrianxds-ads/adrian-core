@@ -41,6 +41,54 @@ body{padding:28px}
 
 /* ---------- HEADER ---------- */
 
+.barcelona-skyline{
+  position:absolute;
+  left:12mm;
+  right:12mm;
+  top:4.5mm;
+  height:31mm;
+  color:#335c53;
+  opacity:.16;
+  pointer-events:none;
+  z-index:0;
+}
+
+.barcelona-skyline svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.skyline-horizon{stroke-width:.55}
+.skyline-thin{stroke-width:1.15}
+.skyline-faint{stroke-width:.65; opacity:.55}
+
+.header{
+  background:linear-gradient(180deg, rgba(251,250,246,.58) 0%, rgba(251,250,246,.86) 56%, rgba(251,250,246,1) 100%);
+  padding-top:5mm;
+}
+
+.name{
+  text-shadow:0 1px 0 rgba(251,250,246,.86);
+}
+
+.photo{
+  position:relative;
+  border:0;
+  outline:1px solid rgba(126,148,139,.50);
+  outline-offset:2px;
+  background:#e7ece9;
+}
+
+.photo::after{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border:.5px solid rgba(88,112,103,.18);
+  pointer-events:none;
+}
+
+
 .header{
   display:grid;
   grid-template-columns:minmax(0,1fr) 27mm;
@@ -118,13 +166,7 @@ body{padding:28px}
 /* ---------- SUBTLE GRAPHIC ---------- */
 
 .line-art{
-  position:absolute;
-  top:10mm;
-  right:45mm;
-  width:58mm;
-  height:24mm;
-  opacity:.08;
-  pointer-events:none;
+  display:none;
 }
 
 .line-art svg{width:100%;height:100%}
@@ -463,6 +505,14 @@ body{padding:28px}
 
   .line-art{display:none}
 
+  .barcelona-skyline{
+    left:10px;
+    right:10px;
+    top:5px;
+    height:84px;
+    opacity:.11;
+  }
+
   .section{
     margin-top:20px;
   }
@@ -638,6 +688,42 @@ body{padding:28px}
         <path d="M5 105 C135 62, 255 160, 380 95 S575 70, 695 120"/>
         <path d="M25 138 C150 100, 270 190, 395 130 S580 110, 685 155"/>
         <path d="M45 173 C170 140, 285 215, 410 166 S590 145, 670 190"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="barcelona-skyline" aria-hidden="true">
+    <svg viewBox="0 0 1200 150" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path class="skyline-horizon" d="M0 126 H1200"/>
+        <path class="skyline-thin" d="
+          M10 126 L10 111 L30 111 L30 105 L48 105 L48 116
+          L72 116 L72 98 L84 98 L84 88 L95 88 L95 126
+          L132 126 L132 108 L150 108 L150 96 L166 96 L166 126
+          L190 126 L190 103 L208 103 L208 89 L220 89 L220 126
+          L244 126
+          L250 107 L256 107 L260 81 L265 107 L271 107
+          L276 52 L281 107 L287 107 L292 34 L297 107 L303 107
+          L308 68 L313 107 L319 107 L325 44 L330 107 L336 107
+          L342 126
+          L370 126 L370 104 L384 104 L384 89 L395 89 L395 126
+          L421 126 L421 98 L437 98 L437 84 L450 84 L450 126
+          L482 126 L482 106 L497 106 L497 91 L510 91 L510 126
+          L548 126
+          C575 116 588 100 603 91
+          C620 80 645 75 665 78
+          C690 81 705 93 724 98
+          C744 103 765 99 785 86
+          C805 73 828 65 850 66
+          L867 39 L884 66
+          C905 69 927 80 944 91
+          L969 91 L969 126
+          L1007 126
+          L1007 48 L1020 48 L1032 17 L1044 48 L1057 48 L1057 126
+          L1094 126 L1094 102 L1111 102 L1111 89 L1125 89 L1125 126
+          L1160 126 L1160 108 L1177 108 L1177 96 L1190 96 L1190 126
+        "/>
+        <path class="skyline-faint" d="M540 101 C635 38 760 31 855 63"/>
       </g>
     </svg>
   </div>
