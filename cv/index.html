@@ -540,7 +540,11 @@ body{padding:28px}
   }
 
   .skyline-thin{
-    stroke-width:2.05;
+    stroke-width:1.75;
+  }
+
+  .skyline-landmark{
+    stroke-width:2.25;
   }
 
   .section{
@@ -726,34 +730,64 @@ body{padding:28px}
     <svg viewBox="0 0 1200 150" xmlns="http://www.w3.org/2000/svg" fill="none">
       <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
         <path class="skyline-horizon" d="M0 126 H1200"/>
+
+        <!-- trama urbana baja: deja respirar la zona del nombre -->
         <path class="skyline-thin" d="
-          M10 126 L10 111 L30 111 L30 105 L48 105 L48 116
-          L72 116 L72 98 L84 98 L84 88 L95 88 L95 126
-          L132 126 L132 108 L150 108 L150 96 L166 96 L166 126
-          L190 126 L190 103 L208 103 L208 89 L220 89 L220 126
-          L244 126
-          L250 107 L256 107 L260 81 L265 107 L271 107
-          L276 52 L281 107 L287 107 L292 34 L297 107 L303 107
-          L308 68 L313 107 L319 107 L325 44 L330 107 L336 107
-          L342 126
-          L370 126 L370 104 L384 104 L384 89 L395 89 L395 126
-          L421 126 L421 98 L437 98 L437 84 L450 84 L450 126
-          L482 126 L482 106 L497 106 L497 91 L510 91 L510 126
-          L548 126
-          C575 116 588 100 603 91
-          C620 80 645 75 665 78
-          C690 81 705 93 724 98
-          C744 103 765 99 785 86
-          C805 73 828 65 850 66
-          L867 39 L884 66
-          C905 69 927 80 944 91
-          L969 91 L969 126
-          L1007 126
-          L1007 48 L1020 48 L1032 17 L1044 48 L1057 48 L1057 126
-          L1094 126 L1094 102 L1111 102 L1111 89 L1125 89 L1125 126
-          L1160 126 L1160 108 L1177 108 L1177 96 L1190 96 L1190 126
+          M8 126 L8 113 L28 113 L28 107 L48 107 L48 117
+          L76 117 L76 102 L91 102 L91 92 L103 92 L103 126
+          L135 126 L135 110 L154 110 L154 99 L171 99 L171 126
+          L204 126 L204 108 L220 108 L220 96 L235 96 L235 126
+          L270 126 L270 105 L286 105 L286 92 L302 92 L302 126
+          L340 126 L340 111 L358 111 L358 101 L374 101 L374 126
+          L410 126 L410 106 L427 106 L427 94 L444 94 L444 126
+          L480 126 L480 110 L497 110 L497 98 L514 98 L514 126
+          L552 126
         "/>
-        <path class="skyline-faint" d="M540 101 C635 38 760 31 855 63"/>
+
+        <!-- perfil de Montjuïc / Collserola -->
+        <path class="skyline-faint" d="
+          M500 111
+          C545 104 572 88 600 79
+          C630 69 661 68 691 75
+          C724 83 744 95 770 98
+          C796 101 817 92 840 80
+          C865 67 891 61 918 65
+          L939 43 L958 66
+          C981 69 1000 78 1018 91
+        "/>
+
+        <!-- Sagrada Família desplazada a la derecha -->
+        <path class="skyline-landmark" d="
+          M708 126
+          L716 107 L723 107 L728 86 L734 107 L741 107
+          L747 55 L753 107 L760 107
+          L767 34 L774 107 L781 107
+          L788 67 L795 107 L802 107
+          L809 45 L816 107 L823 107
+          L830 126
+        "/>
+
+        <!-- cúpulas / casco histórico -->
+        <path class="skyline-thin" d="
+          M842 126 L842 103 L858 103 L858 88 L870 88 L870 126
+          L892 126 L892 99 L909 99 L909 84 L922 84 L922 126
+          L946 126 L946 108 L962 108 L962 95 L976 95 L976 126
+        "/>
+
+        <!-- Torre Glòries -->
+        <path class="skyline-landmark" d="
+          M1031 126
+          L1031 54
+          C1031 38 1041 24 1050 16
+          C1059 24 1069 38 1069 54
+          L1069 126
+        "/>
+
+        <!-- remate urbano derecho -->
+        <path class="skyline-thin" d="
+          M1092 126 L1092 103 L1109 103 L1109 91 L1123 91 L1123 126
+          L1151 126 L1151 110 L1168 110 L1168 98 L1184 98 L1184 126
+        "/>
       </g>
     </svg>
   </div>
