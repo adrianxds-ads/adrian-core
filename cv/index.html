@@ -110,6 +110,7 @@ body{padding:28px}
   inset:-5px;
   border:.5px solid rgba(88,112,103,.18);
   pointer-events:none;
+  z-index:3;
 }
 
 
@@ -197,11 +198,40 @@ body{padding:28px}
   font-size:8pt;
 }
 
-.photo img{
+.photo-base{
+  position:absolute;
+  inset:0;
+  background:#fbfaf6;
+  z-index:0;
+}
+
+.photo-wave{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  overflow:visible;
+  pointer-events:none;
+}
+
+.photo-wave path{
+  fill:none;
+  stroke:#335c53;
+  stroke-width:.72;
+  opacity:.26;
+  vector-effect:non-scaling-stroke;
+  stroke-linecap:round;
+}
+
+.photo-cutout{
+  position:absolute;
+  inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
   object-position:center 18%;
+  z-index:2;
   filter:grayscale(1) sepia(.16) hue-rotate(82deg) saturate(.58) contrast(1.04) brightness(1.02);
 }
 
@@ -750,7 +780,13 @@ body{padding:28px}
       </div>
     </div>
 
-    <div class="photo" id="photo-slot"><img src="photo.png" alt="Retrato de Adrián Díaz Santos"></div>
+    <div class="photo" id="photo-slot">
+      <div class="photo-base" aria-hidden="true"></div>
+      <svg class="photo-wave" viewBox="0 0 100 128" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-8 54 C14 34 29 39 43 54 S72 74 108 45"/>
+      </svg>
+      <img class="photo-cutout" src="photo-cutout.png" alt="Retrato de Adrián Díaz Santos">
+    </div>
   </header>
 
   <section class="section">
