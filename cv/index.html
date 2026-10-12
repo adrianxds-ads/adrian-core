@@ -43,12 +43,12 @@ body{padding:28px}
 
 .barcelona-skyline{
   position:absolute;
-  left:12mm;
-  right:12mm;
-  top:4.5mm;
-  height:31mm;
+  left:10mm;
+  right:10mm;
+  top:3mm;
+  height:34mm;
   color:#335c53;
-  opacity:.16;
+  opacity:.30;
   pointer-events:none;
   z-index:0;
 }
@@ -59,17 +59,29 @@ body{padding:28px}
   display:block;
 }
 
-.skyline-horizon{stroke-width:.55}
-.skyline-thin{stroke-width:1.15}
-.skyline-faint{stroke-width:.65; opacity:.55}
+.barcelona-skyline::after{
+  content:"";
+  position:absolute;
+  left:5%;
+  right:5%;
+  bottom:2mm;
+  height:.7px;
+  background:linear-gradient(90deg, rgba(51,92,83,0), rgba(51,92,83,.42) 22%, rgba(51,92,83,.42) 78%, rgba(51,92,83,0));
+}
+
+.skyline-horizon{stroke-width:.75; opacity:.48}
+.skyline-thin{stroke-width:1.55}
+.skyline-faint{stroke-width:.8; opacity:.36}
 
 .header{
-  background:linear-gradient(180deg, rgba(251,250,246,.58) 0%, rgba(251,250,246,.86) 56%, rgba(251,250,246,1) 100%);
-  padding-top:5mm;
+  background:linear-gradient(180deg, rgba(251,250,246,.18) 0%, rgba(251,250,246,.64) 58%, rgba(251,250,246,.97) 100%);
+  padding-top:7mm;
 }
 
 .name{
-  text-shadow:0 1px 0 rgba(251,250,246,.86);
+  text-shadow:
+    0 1px 0 rgba(251,250,246,.96),
+    0 0 5px rgba(251,250,246,.72);
 }
 
 .photo{
@@ -506,11 +518,11 @@ body{padding:28px}
   .line-art{display:none}
 
   .barcelona-skyline{
-    left:10px;
-    right:10px;
-    top:5px;
-    height:84px;
-    opacity:.11;
+    left:6px;
+    right:6px;
+    top:4px;
+    height:92px;
+    opacity:.20;
   }
 
   .section{
