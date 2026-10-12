@@ -540,32 +540,32 @@ body{padding:28px}
     width:210mm;
     min-height:297mm;
     margin:0;
-    padding:7.5mm 12mm 6.5mm;
+    padding:5mm 10mm 4mm;
     box-shadow:none;
   }
 
   .header{
-    padding-top:3.5mm;
-    padding-bottom:3.2mm;
+    padding-top:2mm;
+    padding-bottom:2.4mm;
   }
 
   .section{
-    margin-top:3mm;
+    margin-top:2.35mm;
   }
 
   .section-title{
-    margin-bottom:1.6mm;
-    font-size:11.5pt;
+    margin-bottom:1.25mm;
+    font-size:10.8pt;
   }
 
   .profile{
-    font-size:8.15pt;
-    line-height:1.25;
-    margin-bottom:.5mm;
+    font-size:7.9pt;
+    line-height:1.20;
+    margin-bottom:.2mm;
   }
 
   .entry{
-    margin-bottom:2.35mm;
+    margin-bottom:1.9mm;
   }
 
   .education .entry{
@@ -650,6 +650,94 @@ body{padding:28px}
   .tag{
     padding:.85mm 2.1mm;
     font-size:7.35pt;
+  }
+
+  .education .timeline{
+    margin-left:0;
+    padding-left:0;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:2.3mm;
+  }
+
+  .education .timeline::before,
+  .education .entry::before{
+    display:none;
+  }
+
+  .education .entry{
+    margin:0;
+    padding:0 1.2mm 0 0;
+  }
+
+  .education .date{
+    position:static;
+    width:auto;
+    margin:0 0 .45mm;
+    font-size:6.9pt;
+  }
+
+  .education .edu-kicker{
+    font-size:8.25pt;
+    line-height:1.08;
+  }
+
+  .education .edu-title{
+    margin-top:.3mm;
+    font-size:6.95pt;
+    line-height:1.10;
+  }
+
+  .education .place{
+    margin-top:.2mm;
+    font-size:6.7pt;
+  }
+
+  .education .edu-small{
+    margin-top:.4mm;
+    font-size:6.25pt;
+    line-height:1.10;
+  }
+
+  .education ~ .section{
+    display:inline-block;
+    width:24.2%;
+    vertical-align:top;
+    margin-top:1.4mm;
+    padding-right:1.5mm;
+  }
+
+  .education ~ .section .section-title{
+    font-size:8.65pt;
+    margin-bottom:.8mm;
+    gap:1.5mm;
+  }
+
+  .education ~ .section .languages-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.45mm;
+  }
+
+  .education ~ .section .language{
+    padding:.45mm .7mm .4mm;
+  }
+
+  .education ~ .section .language-name{
+    font-size:6.7pt;
+  }
+
+  .education ~ .section .language-level{
+    margin-top:.15mm;
+    font-size:5.85pt;
+  }
+
+  .education ~ .section .tags{
+    gap:.45mm;
+  }
+
+  .education ~ .section .tag{
+    font-size:5.9pt;
+    padding:.35mm .85mm;
   }
 }
 
