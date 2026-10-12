@@ -157,3 +157,16 @@ Extender el lenguaje visual a módulos auxiliares sin tratar sus funciones como 
 ## 10. Cierre documental
 
 **12/10/2026 · Puerta 0.** Se consolidan seis fases en este único contrato. Referencia inicial Hub 30.5.13, con colores corporativos en tarjetas y ocho juegos. El nuevo sistema completo está **pendiente de implantación y prueba**. **Siguiente paso: Puerta 1 · piloto controlado de Grammar Quest.**
+
+## 11. Cierre verificado · Puerta 1 Grammar Quest · 2026-10-12
+
+**Estado:** piloto IMPLANTADO y PUBLICADO; **el resto de aplicaciones aún no ha sido reformado con este patrón**.
+
+- Grammar Quest **3.36.9**, repositorio adaptive-english, commits **48dc58d** (estilos y versión) y **7d5ab38** (huellas y precaché); Hub **30.5.14**, commit **8b520f6**.
+- El piloto usa una hoja **local y reversible** grammar-visual-pilot.css enlazada después de los adaptadores históricos. Portada OLED neutra #0E1318, panel #192229, borde/marca #4A90E2, CTA #285F9A sin degradado, Statistics y Coach oscuros coherentes; quiz y resultados sobre lectura clara #EAF0F5/#FFFFFF.
+- Medallas en tarjeta reducidas a tres círculos con cantidades; estrella suelta con contador en lugar de cuarto círculo. En la tarjeta compacta no se dibuja estrella bloqueada de valor cero. Resultados conservan explícitamente los ceros. No se modificaron cálculos de recompensas.
+- Key Diary conserva carrusel horizontal, ficha completa y doble toque para revelar/avanzar; prueba móvil por viewport real (la captura de página completa puede mostrar artefactos al componer desplazamientos internos). Navegación Atrás/Panel/Hub con contraste corregido.
+- Pruebas sobre Edge en perfiles **aislados** a **360/390/412/768/1280 px**: portada, acceso a Statistics/Coach, fichas completas, quiz claro, cuatro opciones y colores de categoría, tamaños, navegación, sin desbordamientos ni errores JavaScript. Una ronda completa de 15 preguntas llevó a resultados claros y pasó volver a portada y recargar. Pruebas adicionales de historial y persistencia bajo cuota aprobadas.
+- Integridad de nueve cachés, rechazo de builds dañados, Version Center y **69 fingerprints** correctos. Navegador de GitHub Pages comprobó Grammar 3.36.9 a 390/1280 y Hub 30.5.14; CSS, JS y service-worker públicos coinciden byte a byte con archivos de la entrega.
+- No se utilizó el perfil personal de progreso ni se alteró trabajo local sin confirmar. **No** se certifica en esta puerta la prueba física del Pixel, zoom 200 %, dictado/teclado real o sincronización entre dos dispositivos; esas comprobaciones pertenecen a su matriz específica de aceptación.
+- **Siguiente paso · Puerta 2:** auditar los selectores del piloto frente a las reglas existentes y extraer únicamente los componentes compartibles a Adrián Core. Validarlos en cada app antes de propagarlos, sin copiar masivamente los overrides locales ni tocar motores o bancos.
