@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV Visual · Adrián Díaz Santos</title>
+<style>
+:root{
+  --paper:#fbfaf6;
+  --ink:#1f2523;
+  --green:#173f37;
+  --green-2:#335c53;
+  --soft:#edf2ef;
+  --muted:#66706b;
+  --line:#d5ddd9;
+  --grad-line:linear-gradient(90deg, rgba(23,63,55,.70) 0%, rgba(72,105,96,.34) 52%, rgba(72,105,96,0) 100%);
+  --grad-accent:linear-gradient(90deg, rgba(23,63,55,.24) 0%, rgba(23,63,55,.08) 56%, rgba(23,63,55,0) 100%);
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  background:#ecefed;
+  color:var(--ink);
+  font-family:Inter, "Segoe UI", Arial, sans-serif;
+}
+
+body{padding:28px}
+
+.page{
+  width:210mm;
+  min-height:297mm;
+  margin:auto;
+  background:var(--paper);
+  box-shadow:0 18px 55px rgba(25,35,31,.12);
+  padding:11.5mm 15mm 10.5mm;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ---------- HEADER ---------- */
+
+.header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 27mm;
+  gap:8mm;
+  align-items:start;
+  position:relative;
+  z-index:2;
+  padding-bottom:4.5mm;
+  border-bottom:none;
+}
+
+.header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:var(--grad-line);
+}
+
+.name{
+  margin:0;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:28.5pt;
+  line-height:.98;
+  font-weight:500;
+  color:#16372f;
+  letter-spacing:-.7px;
+}
+
+.subtitle{
+  margin-top:2.3mm;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:11.3pt;
+  color:#2f403b;
+}
+
+.contact{
+  margin-top:2.6mm;
+  display:flex;
+  flex-wrap:wrap;
+  gap:1.5mm 2.5mm;
+  font-size:7.8pt;
+  color:#48524f;
+}
+
+.contact span:not(:last-child)::after{
+  content:"·";
+  margin-left:2.5mm;
+  color:#8b938f;
+}
+
+.photo{
+  width:25mm;
+  height:32mm;
+  border:1px solid #bcc8c3;
+  background:linear-gradient(145deg,#eef1ef,#dde5e1);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#75807b;
+  font-size:8pt;
+}
+
+.photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ---------- SUBTLE GRAPHIC ---------- */
+
+.line-art{
+  position:absolute;
+  top:10mm;
+  right:45mm;
+  width:58mm;
+  height:24mm;
+  opacity:.08;
+  pointer-events:none;
+}
+
+.line-art svg{width:100%;height:100%}
+
+/* ---------- SECTIONS ---------- */
+
+.section{
+  margin-top:4.4mm;
+  position:relative;
+  z-index:2;
+}
+
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:4mm;
+  margin:0 0 2.2mm;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:12.3pt;
+  font-weight:500;
+  color:var(--green);
+  text-transform:uppercase;
+  letter-spacing:.35px;
+}
+
+.section-title::after{
+  content:"";
+  height:1px;
+  background:var(--grad-line);
+  flex:1;
+}
+
+.profile{
+  margin:0;
+  max-width:165mm;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:8.6pt;
+  line-height:1.31;
+  color:#3a4441;
+}
+
+/* ---------- EXPERIENCE ---------- */
+
+.timeline{
+  margin-left:28mm;
+  border-left:none;
+  padding-left:6.8mm;
+  position:relative;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:linear-gradient(180deg, rgba(177,189,183,.28) 0%, rgba(177,189,183,.72) 18%, rgba(177,189,183,.72) 82%, rgba(177,189,183,.22) 100%);
+}
+
+.entry{
+  position:relative;
+  margin-bottom:3.5mm;
+  page-break-inside:avoid;
+}
+
+.entry:last-child{margin-bottom:0}
+
+.entry::before{
+  content:"";
+  position:absolute;
+  left:-9.8mm;
+  top:2.2mm;
+  width:4.8mm;
+  height:1px;
+  border-radius:0;
+  background:linear-gradient(90deg, rgba(86,110,101,.92) 0%, rgba(112,135,126,.62) 62%, rgba(112,135,126,0) 100%);
+  box-shadow:none;
+}
+
+.date{
+  position:absolute;
+  left:-35mm;
+  width:25mm;
+  top:.1mm;
+  color:#617069;
+  font-weight:600;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:7.75pt;
+  line-height:1.3;
+}
+
+.role{
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:10.3pt;
+  font-weight:700;
+  color:#1e302a;
+  line-height:1.15;
+}
+
+.role strong,
+.company strong,
+.edu-kicker strong,
+.profile strong{
+  color:var(--green);
+  font-weight:700;
+}
+
+.attention{
+  color:var(--green);
+  font-weight:700;
+}
+
+.company{
+  letter-spacing:.02px;
+}
+
+.place{
+  opacity:.88;
+}
+
+.desc{
+  max-width:138mm;
+}
+
+.metric{
+  display:inline-block;
+  font-weight:700;
+  color:#1d4b40;
+}
+
+.tag.primary{
+  background:#dde8e3;
+  border-color:#c8d8d1;
+  color:#183d34;
+  font-weight:700;
+}
+
+.tag.secondary{
+  background:#eef2f0;
+  color:#5a6762;
+}
+
+.language-name{
+  color:#1d3e35;
+}
+
+.role em{
+  font-weight:400;
+}
+
+.company{
+  margin-top:.8mm;
+  font-size:8.4pt;
+  font-weight:700;
+  color:#2d403a;
+}
+
+.place{
+  margin-top:.45mm;
+  font-size:8.1pt;
+  color:#52615c;
+}
+
+.license{
+  margin-top:1.1mm;
+  display:inline-block;
+  padding:.95mm 2.1mm;
+  background:var(--soft);
+  border-left:2px solid var(--green);
+  color:#23463d;
+  font-size:7.75pt;
+  font-weight:700;
+}
+
+.desc{
+  margin-top:1.2mm;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:8.15pt;
+  line-height:1.31;
+  color:#434c49;
+}
+
+.guide-entry{
+  padding:2.2mm 3.2mm 2.4mm 3.2mm;
+  margin-left:-3.2mm;
+  border-left:1px solid #bcc8c3;
+  background:var(--grad-accent);
+}
+
+.guide-entry::before{
+  left:-6.8mm;
+}
+
+.guide-entry .role{
+  font-size:10.9pt;
+}
+
+.guide-entry .company{
+  font-weight:600;
+}
+
+/* ---------- EDUCATION ---------- */
+
+.education .entry{
+  margin-bottom:3.1mm;
+}
+
+.edu-kicker{
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:10.1pt;
+  font-weight:700;
+  color:#1c3b32;
+  line-height:1.2;
+}
+
+.edu-title{
+  margin-top:.7mm;
+  font-size:8.4pt;
+  color:#344841;
+}
+
+.edu-small{
+  margin-top:1.05mm;
+  font-size:7.75pt;
+  line-height:1.28;
+  color:#5b6561;
+}
+
+/* ---------- LANGUAGES / SKILLS ---------- */
+
+.languages-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1.6mm;
+}
+
+.language{
+  padding:1.5mm 2mm 1.4mm;
+  border-top:1px solid transparent;
+  border-image:linear-gradient(90deg, rgba(112,134,126,.80) 0%, rgba(112,134,126,.22) 75%, rgba(112,134,126,0) 100%) 1;
+  background:rgba(255,255,255,.22);
+}
+
+.language-name{
+  display:block;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:8.6pt;
+  font-weight:700;
+  color:#263b34;
+}
+
+.language-level{
+  display:block;
+  margin-top:.6mm;
+  font-size:7.35pt;
+  color:#64716c;
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1.4mm;
+}
+
+.tag{
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(235,241,238,.92) 0%, rgba(231,238,234,.92) 100%);
+  border:1px solid #dde6e1;
+  padding:1.15mm 2.5mm;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:7.8pt;
+  color:#294138;
+}
+
+@page{
+  size:A4;
+  margin:0;
+}
+
+@media print{
+  html,body{background:#fff}
+  body{padding:0}
+  .page{
+    width:210mm;
+    min-height:297mm;
+    margin:0;
+    box-shadow:none;
+  }
+}
+
+@media(max-width:900px){
+  body{padding:0}
+  .page{
+    width:100%;
+    min-height:auto;
+    padding:24px;
+    box-shadow:none;
+  }
+
+  .header{
+    grid-template-columns:1fr 86px;
+    gap:16px;
+  }
+
+  .photo{
+    width:86px;
+    height:106px;
+  }
+
+  .name{font-size:40px}
+  .line-art{display:none}
+
+  .languages-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .timeline{
+    margin-left:0;
+    padding-left:18px;
+  }
+
+  .date{
+    position:static;
+    width:auto;
+    margin-bottom:5px;
+  }
+
+  .entry::before{
+    left:-24px;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="page">
+
+  <div class="line-art" aria-hidden="true">
+    <svg viewBox="0 0 700 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#173f37" stroke-width="2">
+        <path d="M10 72 C125 25, 250 125, 370 60 S560 35, 690 85"/>
+        <path d="M5 105 C135 62, 255 160, 380 95 S575 70, 695 120"/>
+        <path d="M25 138 C150 100, 270 190, 395 130 S580 110, 685 155"/>
+        <path d="M45 173 C170 140, 285 215, 410 166 S590 145, 670 190"/>
+      </g>
+    </svg>
+  </div>
+
+  <header class="header">
+    <div>
+      <h1 class="name">ADRIÁN DÍAZ SANTOS</h1>
+      <div class="subtitle">Guía de turismo · Patrimonio cultural · Atención internacional</div>
+      <div class="contact">
+        <span>Barcelona</span>
+        <span>Disponibilidad geográfica</span>
+        <span>contacto@email.com</span>
+        <span>+34 600 000 000</span>
+      </div>
+    </div>
+
+    <div class="photo" id="photo-slot">FOTO</div>
+  </header>
+
+  <section class="section">
+    <h2 class="section-title">Perfil profesional</h2>
+    <p class="profile">
+      Profesional del <strong>turismo</strong> y la <strong>atención internacional</strong>, con
+      <span class="metric">más de 15 años</span> de experiencia trabajando con público internacional.
+      Trayectoria en visitas guiadas, interpretación patrimonial, movilidad y aviación comercial,
+      con formación en patrimonio, conservación, cultura visual e información turística.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Experiencia profesional</h2>
+    <div class="timeline">
+
+      <article class="entry guide-entry">
+        <div class="date">Mayo 2026 –<br>Actualidad</div>
+        <div class="role"><strong>Guía turístico</strong> · <em>Freelance / Free Tour</em></div>
+        <div class="company">Visitas guiadas e interpretación cultural</div>
+        <div class="license"><span class="attention">Guía de Turismo habilitado en Euskadi</span> · <strong>REATE GHP00990</strong></div>
+        <div class="desc">
+          Rutas para público nacional e internacional · Interpretación histórica, artística y cultural ·
+          Gestión de grupos y atención al visitante
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="date">2025 – 2026</div>
+        <div class="role"><strong>Gestión de flota y operativa</strong> · <em>Rental Agent</em></div>
+        <div class="company"><strong>Europcar Mobility Group</strong></div>
+        <div class="place">Aeropuerto de Barcelona-El Prat · Barcelona Poblenou</div>
+        <div class="desc">
+          Atención al cliente · Contratos, entregas y devoluciones · Coordinación de flota · Gestión de incidencias
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="date">Diciembre 2023 –<br>Abril 2025</div>
+        <div class="role"><strong>Mobility Sales Advisor</strong></div>
+        <div class="company"><strong>OK Mobility</strong></div>
+        <div class="place">Aeropuerto de Barcelona-El Prat</div>
+        <div class="desc">
+          Atención comercial · Proceso integral de alquiler · Check-in digital · Incidencias y reclamaciones
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="date">2007 – 2023</div>
+        <div class="role"><strong>Tripulante de cabina</strong> · <em>Cabin Manager</em></div>
+        <div class="company"><strong>Ryanair · Malta Air</strong></div>
+        <div class="place">Bases: Dublín · Londres · Malta</div>
+        <div class="desc">
+          Coordinación de tripulaciones · Seguridad operativa · Atención internacional al pasajero ·
+          Formación de nuevas incorporaciones
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section education">
+    <h2 class="section-title">Formación</h2>
+    <div class="timeline">
+
+      <article class="entry">
+        <div class="date">2014</div>
+        <div class="edu-kicker"><strong>Patrimonio · Conservación · Cultura visual</strong></div>
+        <div class="edu-title">Licenciatura en Bellas Artes · Universidad Complutense de Madrid</div>
+      </article>
+
+      <article class="entry">
+        <div class="date">2026</div>
+        <div class="edu-kicker"><strong>Promoción turística local e información al visitante</strong> · HOTI0108</div>
+        <div class="edu-title">Certificado profesional · Fase avanzada · Finalización prevista 2026</div>
+        <div class="edu-small">
+          MF1074_3 · Información turística — completado<br>
+          MF0268_3 · Gestión de unidades de información y distribución turísticas — fase final
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="date">2001 – 2004</div>
+        <div class="edu-kicker"><strong>Diseño gráfico · Preimpresión · Producción digital</strong></div>
+        <div class="edu-title">FNMT · Fábrica Nacional de Moneda y Timbre · Real Casa de la Moneda</div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Idiomas</h2>
+    <div class="languages-grid">
+      <div class="language">
+        <span class="language-name">Castellano</span>
+        <span class="language-level">Nativo</span>
+      </div>
+      <div class="language">
+        <span class="language-name">Inglés</span>
+        <span class="language-level">Avanzado · C1</span>
+      </div>
+      <div class="language">
+        <span class="language-name">Italiano</span>
+        <span class="language-level">Avanzado profesional</span>
+      </div>
+      <div class="language">
+        <span class="language-name">Catalán</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Competencias profesionales</h2>
+    <div class="tags">
+      <span class="tag primary">Interpretación patrimonial</span>
+      <span class="tag primary">Gestión de grupos</span>
+      <span class="tag primary">Información turística</span>
+      <span class="tag primary">Atención internacional</span>
+      <span class="tag secondary">Operativa y movilidad</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Tecnología e IA aplicada</h2>
+    <div class="tags">
+      <span class="tag primary">IA generativa</span>
+      <span class="tag primary">Automatización y prototipado</span>
+      <span class="tag secondary">HTML / CSS</span>
+      <span class="tag secondary">JSON</span>
+      <span class="tag secondary">Python aplicado</span>
+      <span class="tag secondary">GitHub</span>
+      <span class="tag secondary">Office 365 · Excel</span>
+    </div>
+  </section>
+</main>
+</body>
+</html>
