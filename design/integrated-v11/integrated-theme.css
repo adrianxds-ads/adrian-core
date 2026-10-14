@@ -1,0 +1,231 @@
+@import url("./roboto.css");
+/* Contrato Maestro Integrado v1.1. Presentation only; native learning engines retained. */
+:root{--integrated-dark:#0E1318;--integrated-ink:#25282C;--integrated-text:#EAF0F5;--integrated-line:#56636D}
+body[data-integrated-app]{background:#0E1318!important;color:#EAF0F5!important;font-family:Roboto,Arial,sans-serif!important;font-size:18px!important;line-height:1.35!important}
+body[data-integrated-app] *{box-sizing:border-box}
+body[data-integrated-app] .screen,body[data-integrated-app] #app>section{width:100%;max-width:900px;margin:auto;padding:24px 16px 40px!important;min-height:100dvh;height:auto!important}
+body[data-integrated-app] .screen:not(#gameScreen):not(#quizPlay):not(#paperScreen):not(#kqPlay):not(#flashScreen),body[data-integrated-app] #app>section:not(#game):not(#exam):not(#study):not(#flash):not(#kqPlay):not(#flashScreen):not(#quizPlay):not(#paperScreen):not(#gameScreen){background:#0E1318!important;color:#EAF0F5!important}
+body[data-integrated-app] .screen:not(#gameScreen):not(#quizPlay):not(#paperScreen):not(#kqPlay):not(#flashScreen) :is(.panel,.card,.section,.statusbox,.focus-panel,.next-campaign-box,.stats-panel,.review-item,.class-card,.mode-card){background:#192229!important;color:#EAF0F5!important;border:1px solid #56636D!important;box-shadow:none!important}
+body[data-integrated-app] .screen:not(#gameScreen):not(#quizPlay):not(#paperScreen):not(#kqPlay):not(#flashScreen) :is(.meta,.subtitle,.note,.intro,.card span,.card small,.focus-panel small,.statusbox small,.section p,.panel p){color:#DDE7EE!important}
+body[data-integrated-app] :is(button,input,textarea,select){font-family:inherit!important}
+body[data-integrated-app] button:not(.nucleo-read-skip){min-height:52px!important;font-size:18px!important;line-height:1.35!important;white-space:normal;overflow-wrap:anywhere}
+body[data-integrated-app] button:focus-visible,body[data-integrated-app] a:focus-visible{outline:3px solid #4A90E2!important;outline-offset:3px}
+body[data-integrated-app] :is(h1,h2,h3){line-height:1.35!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#paperScreen,#game,#exam,#study,#flash){background:var(--integrated-tint)!important;color:#25282C!important;justify-content:flex-start!important;overflow:visible!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#paperScreen) .playfield{transform:none!important;flex:none!important;justify-content:flex-start!important;padding-top:0!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#paperScreen) :is(.focus-stack,.focus-question-line,.answer-stage){width:100%;max-width:100%;height:auto!important;min-height:0!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#paperScreen) :is(.question,.paper,.passage),body[data-integrated-app] :is(#gameCard,#examCard,.study-card,.flashcard){background:#FFF!important;color:#25282C!important;border:1px solid #8D969C!important;box-shadow:none!important;border-radius:16px!important;padding:20px 18px!important}
+body[data-integrated-app] :is(#questionText,#quizContext,#first,#sentenceContext,#gameCard h2,#examCard h2){color:#25282C!important;font-size:24px!important;font-weight:600!important;line-height:1.35!important;text-align:left!important;overflow-wrap:anywhere}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(.answers,.options,.option-grid,.choice-grid,.quiz-options){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;max-width:100%;margin-top:16px}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(button.answer,button.option,button.choice,.kq-choice,.quiz-option){background:#FFF!important;color:#25282C!important;border:2px solid #8B969C!important;box-shadow:none!important;border-radius:14px!important;font-size:19px!important;min-height:94px!important;padding:16px 12px!important;text-align:left!important;line-height:1.35!important;overflow-wrap:anywhere;min-width:0;max-width:100%}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(button.good,button.correct,button.is-correct){background:#E4F4EA!important;border-color:#26754D!important;color:#194D31!important;opacity:1!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(button.bad,button.wrong,button.is-wrong){background:#FBE9E8!important;border-color:#B34444!important;color:#832727!important;opacity:1!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(.feedback,.categoryline,.qnum,.hudright,.game-stats,.focus-counter,.focus-points,.mic-status,.speech-help,.native-hint,.quiz-info,.question-no){color:#25282C!important;font-size:16px!important;text-shadow:none!important}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) textarea,body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) input[type=text]{background:#FFF!important;color:#25282C!important;font-size:19px!important;border:2px solid #727D85!important;padding:12px!important;max-width:100%}
+body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(.timer-wrap,#timer,.timer,#segments,#focusProgress,.seconds-bar,#quizClock,#quizProgressBar,#roundProgress){display:none!important}
+body[data-integrated-app] .integrated-progress{display:grid;gap:4px;margin:12px 0 18px;width:100%}
+body[data-integrated-app] .integrated-progress span{height:8px;background:#FFF;border:1px solid #727D85;border-radius:4px}
+body[data-integrated-app] .integrated-progress span.done{background:var(--integrated-accent);border-color:#53636E}
+body[data-integrated-app] .integrated-timer{width:100%;margin:18px 0 8px;color:#25282C!important;font-size:16px}
+body[data-integrated-app] .integrated-timer-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}
+body[data-integrated-app] .integrated-timer-head strong{font-variant-numeric:tabular-nums}
+body[data-integrated-app] .integrated-timer-track{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:3px}
+body[data-integrated-app] .integrated-timer-track span{height:13px;background:#FFF;border:1px solid #727D85;border-radius:4px}
+body[data-integrated-app] .integrated-timer-track span.active{background:#25282C}
+body[data-integrated-app] .integrated-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#0E1318;color:#EAF0F5;font-size:16px}
+body[data-integrated-app] .integrated-nav a{color:#EAF0F5;padding:12px;border:1px solid #667782;border-radius:10px;text-decoration:none;min-height:48px}
+body[data-integrated-app] [hidden]{display:none!important}
+@media(max-width:359px){body[data-integrated-app] .screen,body[data-integrated-app] #app>section{padding:16px 10px 30px!important}body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(.answers,.options,.option-grid,.choice-grid){gap:8px!important}body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(button.answer,button.option,button.choice){padding:12px 8px!important}}
+
+body[data-integrated-app] #quizAnswerArea:not(.typing){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+body[data-integrated-app] #quizPlay button.option-btn{background:#FFF!important;color:#25282C!important;border:2px solid #8B969C!important;font-size:19px!important;min-height:94px!important;padding:16px 12px!important;text-align:left!important}
+body[data-integrated-app] #quizPlay button.option-btn.correct{background:#E4F4EA!important;color:#194D31!important;border-color:#26754D!important}
+body[data-integrated-app] #quizPlay button.option-btn.wrong{background:#FBE9E8!important;color:#832727!important;border-color:#B34444!important}
+body[data-integrated-app] #focusTimeDisplay{display:none!important}
+body[data-integrated-app] #gameScreen .focus-modal-card{background:#192229!important;color:#EAF0F5!important}
+body[data-integrated-app] #gameScreen .focus-modal-card :is(h2,p,button){color:#EAF0F5!important}
+body[data-integrated-app] #gameScreen .focus-modal{padding:16px!important}
+
+html body[data-integrated-app] #gameScreen#gameScreen,html body[data-integrated-app] #quizPlay#quizPlay,html body[data-integrated-app] #kqPlay#kqPlay{background:var(--integrated-tint)!important;color:#25282C!important}
+html body[data-integrated-app] #aldOverlay#aldOverlay{background:#0E1318!important;color:#EAF0F5!important;font-family:Roboto,Arial,sans-serif!important}
+html body[data-integrated-app] #aldOverlay .ald-panel,html body[data-integrated-app] #aldOverlay .ald-card,html body[data-integrated-app] #aldOverlay .ald-section{background:#192229!important;color:#EAF0F5!important;border-color:#56636D!important}
+body[data-integrated-app] :is(#kqHome,#kqFinish){background:#0E1318!important;color:#EAF0F5!important}
+body[data-integrated-app] #kqPlay :is(.kq-question,.kq-second,#kqFirst){background:#FFF!important;color:#25282C!important;font-size:24px!important;line-height:1.35!important}
+body[data-integrated-app] #kqChoices{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+body[data-integrated-app] #kqChoices button.kq-choice{background:#FFF!important;color:#25282C!important;border:2px solid #8B969C!important;font-size:19px!important;min-height:94px!important;padding:16px 12px!important}
+body[data-integrated-app] #kqClock{display:none!important}
+body[data-integrated-app] .integrated-nav{position:relative;z-index:10}
+body[data-integrated-app] .adrian-hub-nav,body[data-integrated-app] .adrian-nav-layer .adrian-hub-nav{display:none!important}
+
+html body[data-integrated-app] .xds-json-panel{background:#192229!important;color:#EAF0F5!important;font-family:Roboto,Arial,sans-serif!important;border-color:#56636D!important}
+html body[data-integrated-app] .xds-json-panel button{background:#21313B!important;color:#EAF0F5!important}
+
+/* Common performance modules remain dark; rank fills retain their native colours. */
+html body[data-integrated-app] :is(.adp-summary,.adp-chart,.hc-card,.hc-panel,.hc-chart,.hub-chart-card){background:#192229!important;color:#EAF0F5!important;border-color:#56636D!important}
+html body[data-integrated-app] :is(.adp-summary,.adp-chart,.hc-card,.hc-panel,.hc-chart,.hub-chart-card) :is(h2,h3,p,button,.adp-kicker,.adp-note){color:#EAF0F5!important}
+html body[data-integrated-app] .adp-actions button{background:#21313B!important;color:#EAF0F5!important}
+html body[data-integrated-app] .skill-rank{color:#0E1318!important}
+html body[data-integrated-app] :is(#coverageText,#masteryText,.focus-panel strong,.focus-panel b,.key-carousel-hint,.key-carousel-head,.daily-key-head){color:#EAF0F5!important}
+html body[data-integrated-app] :is(.nucleo-route-nav,.adrian-tools) :is(a,button){background:#192229!important;color:#EAF0F5!important;border-color:#667782!important}
+html body[data-integrated-app] :is(#coachScreen,#jsonScreen) :is(h1,h2,h3){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#statsScreen,#statistics) .pct{color:#EAF0F5!important}
+
+html body[data-integrated-app] :is(.adp-summary,.hub-chart,.hub-chart-empty,.hc-dialog){background:#192229!important;color:#EAF0F5!important;border-color:#56636D!important}
+html body[data-integrated-app] :is(.hub-chart,.hc-dialog) :is(h2,h3,p,button,.hub-chart-empty){color:#EAF0F5!important}
+html body[data-integrated-app] :is(.hub-chart,.hc-dialog) button{background:#21313B!important;color:#EAF0F5!important}
+html body[data-integrated-app] .daily-key-head :is(span,b,em){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#startScreen,#statsScreen,#coachScreen) .campaign-eta-scenarios span{background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] :is(#home,#statistics) :is(h1,h2,h3,p,small,span,strong,.course-breadcrumb,.intro-item,.note){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#home,#statistics) :is(.stats,.intro-label,.intro-item,.focus-box,.focus-status,.focus-card){background:#192229!important;border-color:#56636D!important}
+
+html body[data-integrated-app][data-integrated-app] :is(.adrian-tools,.nucleo-route-nav) :is(a,button){background:#192229!important;color:#EAF0F5!important;border-color:#667782!important}
+html body[data-integrated-app] .campaign-plan-scenarios span{background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] #focusPanel#focusPanel{background:#192229!important;color:#EAF0F5!important}
+
+html body[data-integrated-app] :is(#statsScreen,#statistics,#aldOverlay) :is(.adp-note,.adp-summary .adp-card,.adp-chart,.adp-skills){background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] :is(#statsScreen,#statistics,#aldOverlay) :is(.adp-note,.adp-summary .adp-skill span,.adp-summary .adp-skill b,.adp-score span){color:#EAF0F5!important}
+html body[data-integrated-app] #focusPanel#focusPanel>div{background:transparent!important}
+html body[data-integrated-app] :is(#statsScreen,#statistics,#aldOverlay) .adp-summary :is(span,b){color:#EAF0F5!important}
+html body[data-integrated-app] #statsScreen .pct{background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] #statsScreen .stats-card{background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] #gameScreen :is(#pointsHud,#abortBtn){background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] #gameScreen #paperLabel{background:#FFF!important;color:#25282C!important}
+html body[data-integrated-app] :is(#game,#exam) :is(.eyebrow,.question-meta){color:#25282C!important}
+html body[data-integrated-app] :is(#game,#exam) .question-text{background:#FFF!important;color:#25282C!important}
+html body[data-integrated-app] #statsScreen .stats-card span{color:#EAF0F5!important}
+
+/* Contract audit 20261014: one navigation, readable controls, neutral surfaces. */
+html body[data-integrated-app] .nucleo-route-footer{display:none!important}
+html body[data-integrated-app] .adrian-tools.adrian-tools{position:sticky!important;top:0!important;left:auto!important;right:auto!important;bottom:auto!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding:8px!important;background:#0E1318!important;box-shadow:none!important;min-height:64px!important;transform:none!important}
+html body[data-integrated-app] .adrian-tools .nucleo-route-nav{flex:1 1 180px!important;min-width:180px!important;background:transparent!important;gap:6px!important}
+html body[data-integrated-app] .adrian-tools :is(a,button){font:600 16px/1.35 Roboto,Arial,sans-serif!important;min-height:52px!important;min-width:48px!important;white-space:normal!important;padding:10px 8px!important;transform:none!important;flex-shrink:0!important}
+html body[data-integrated-app]:has(#gameScreen:not(.hidden)) .adrian-tools :is(a,button){font:600 16px/1.35 Roboto,Arial,sans-serif!important;min-width:48px!important;min-height:52px!important;padding:10px 8px!important}
+html body[data-integrated-app]:has(#gameScreen:not(.hidden)) .adrian-tools .nucleo-arcade-points{font:600 16px/1.35 Roboto,Arial,sans-serif!important;min-height:48px!important;padding:8px!important;min-width:67px!important}
+html body[data-integrated-app] a[href]{min-height:48px;min-width:24px;align-items:center;line-height:1.35}
+html body[data-integrated-app] :is(.study-link,.evidence-link,.uf-manual-link,.key-spotify-open,#xds-json-overlay a){display:inline-flex!important;align-items:center!important;min-height:52px!important;max-width:100%;font-size:16px!important;padding:10px 12px!important}
+html body[data-integrated-app] :is(#startScreen,#quizHome,#kqHome,#home) .primary{background-image:none!important;background:var(--integrated-action,#285F9A)!important;color:#FFF!important;border-color:var(--integrated-action,#285F9A)!important;box-shadow:none!important;font-weight:600!important}
+html body[data-integrated-app] :is(.screen,#app>section) :is(.panel,.card,.stats-panel){background-image:none!important;box-shadow:none!important}
+html body[data-integrated-app] #gameScreen#gameScreen{position:relative!important;inset:auto!important;height:auto!important;min-height:calc(100dvh - 64px)!important;overflow:visible!important;transform:none!important}
+html body[data-integrated-app]:has(#gameScreen:not(.hidden)){overflow-y:auto!important}
+html body[data-integrated-app] #gameScreen .question.question{display:block!important;align-items:initial!important;text-align:left!important}
+html body[data-integrated-app] #gameScreen .question .qnum{display:flex!important;gap:4px!important;margin:0 0 12px!important;width:auto!important;min-width:0!important;position:static!important;text-align:left!important;font:500 16px/1.35 Roboto,Arial,sans-serif!important}
+html body[data-integrated-app] #gameScreen .question .qnum :is(span,b){font:inherit!important;color:#25282C!important}
+html body[data-integrated-app] #gameScreen .question #questionText{font:600 24px/1.35 Roboto,Arial,sans-serif!important;text-align:left!important;margin:0!important;white-space:normal!important;width:100%!important}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) .integrated-progress-note{font:500 16px/1.35 Roboto,Arial,sans-serif;color:#25282C;margin:0 0 8px}
+html body[data-integrated-app] .integrated-timer-track span.active{background:var(--timer-active,#D4B07B)!important;border:2px solid #25282C!important}
+html body[data-integrated-app] .integrated-timer[data-urgent=true] .integrated-timer-track span.active{background:var(--timer-warning,#C97A72)!important}
+html body[data-integrated-app] .ad-medal-strip{display:flex!important;gap:12px!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star){display:grid!important;place-items:center!important;width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;gap:0!important;border:2px solid var(--ach,#56636D)!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:none!important;opacity:1!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star)>i{width:auto!important;height:auto!important;min-width:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font:600 16px/1 Roboto,Arial,sans-serif!important;color:#EAF0F5!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star)>b{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star{display:inline-flex!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:none!important;opacity:1!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star>i{display:inline-block!important;width:24px!important;height:24px!important;flex:0 0 24px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font:600 24px/1 Roboto,Arial,sans-serif!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star>b,html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star>b>em{position:static!important;display:inline!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;font:600 16px/1.35 Roboto,Arial,sans-serif!important;color:#EAF0F5!important;clip-path:none!important;box-shadow:none!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star>b::before,html body[data-integrated-app] .ad-medal-strip .ad-medal-stat-star>b::after{content:none!important}
+html body[data-integrated-app] :is(#startScreen,#home,#quizHome,#kqHome) .ad-medal-strip .ad-medal-stat-star.locked{display:none!important}
+
+/* Contract audit: prevent legacy minimums and duplicate points from overriding compact components. */
+html body[data-integrated-app]{font-size:19px!important}
+html body[data-integrated-app] a[href]{display:inline-flex;min-height:48px!important;align-items:center;font-size:16px}
+html body[data-integrated-app] .adrian-tools .nucleo-arcade-points{display:none!important}
+html body[data-integrated-app]:has(#gameScreen:not(.hidden)) .adrian-tools .nucleo-arcade-points{display:none!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star){min-height:34px!important;max-height:34px!important;max-width:34px!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star)>i{min-height:0!important;min-width:0!important;max-height:32px!important}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) button[data-integrated-letter]::before{content:attr(data-integrated-letter)!important;display:inline-grid!important;place-items:center;width:32px;height:32px;border:2px solid var(--integrated-letter-color);border-radius:8px;font:600 16px/1 Roboto,Arial,sans-serif;color:#25282C;flex:0 0 32px;margin:0 8px 8px 0;float:none!important;position:static!important;background:#FFF!important}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) button[data-integrated-letter=A]{--integrated-letter-color:#B9876D}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) button[data-integrated-letter=B]{--integrated-letter-color:#60A99B}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) button[data-integrated-letter=C]{--integrated-letter-color:#859CE0}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) button[data-integrated-letter=D]{--integrated-letter-color:#B784C4}
+
+html body[data-integrated-app] :is(#startScreen,#home,#quizHome,#kqHome) :is(h1,h2){font-weight:600!important;line-height:1.25!important}
+html body[data-integrated-app] :is(#startScreen,#home,#quizHome,#kqHome) h1{font-size:32px!important}
+html body[data-integrated-app] :is(#startScreen,#home,#quizHome,#kqHome) :is(.subtitle,.intro,.note,.meta,.description,.bank-note,.read-first-row p,p){font-weight:400!important;line-height:1.35!important}
+html body[data-integrated-app] .version-badge{font-size:16px!important;opacity:1!important}
+
+/* Results are dark in v1.1; legacy daylight descendants must be reconciled as well. */
+html body[data-integrated-app] summary{min-height:52px!important;padding:12px!important;line-height:1.35!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results){background:#0E1318!important;color:#EAF0F5!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) :is(h1,h2,h3,p,span,strong,small,b,em,label,summary){color:#EAF0F5!important;text-shadow:none!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) :is(.panel,.card,.stat,.metric,.mini-stat,.scorecard,.score-card,.peer-box,.rating-card,.ai-summary,.focus-time-summary,.ai-legend-wrap,.ai-legend-title,.chart-section,.result-summary){background:#192229!important;background-image:none!important;border-color:#56636D!important;box-shadow:none!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) :is(button,a){background:#192229!important;background-image:none!important;color:#EAF0F5!important;border-color:#667782!important;box-shadow:none!important;min-height:52px!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) .primary{background:var(--integrated-action,#285F9A)!important;color:#FFF!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) :is(#endScore,#resultScore,#finishTitle,#kqFinishTitle,#resultHeadline){color:#EAF0F5!important;font-weight:600!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) .ad-medal-stat:not(.ad-medal-stat-star)>i{background:#192229!important;color:#EAF0F5!important}
+html body[data-integrated-app] :is(.hub-chart,.adp-chart,.ai-chart) svg{max-width:100%!important;overflow:hidden!important}
+html body[data-integrated-app] :is(.chart-section,.hub-chart,.adp-chart,.ai-chart){max-width:100%!important;min-width:0!important}
+
+/* Interior coverage: quiz counters, recorded charts, dark result disclosures, Cambridge worksheets. */
+html body[data-integrated-app] :is(#gameScreen#gameScreen,#quizPlay#quizPlay) :is(#qIndex,#qTotal,#quizPosition){color:#25282C!important}
+html body[data-integrated-app] :is(.hub-chart,.hc-dialog) :is(.hub-chart-meta,span,small){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#quizFinish#quizFinish,#kqFinish#kqFinish,#results#results) :is(.kicker,.focus-estimate,.learning-estimate,.practice-estimate,.estimated-practice,.home-details,.end-details,details,summary){background:#192229!important;color:#EAF0F5!important;background-image:none!important;opacity:1!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#results#results) .estimated-practice :is(b,strong,small,span){color:#EAF0F5!important}
+html body[data-integrated-app][data-integrated-app] :is(#quizHome#quizHome,#kqHome#kqHome) :is(h1,h2,h3,p,strong,b,span,small,label,.eyebrow){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#quizHome#quizHome,#kqHome#kqHome) :is(.timing-settings,.timing-advice,.exam-picker,.bank-note,.stats-panel,.mode,.exam-table-note){background:#192229!important;color:#EAF0F5!important;background-image:none!important;border-color:#56636D!important}
+html body[data-integrated-app] :is(#quizHome#quizHome,#kqHome#kqHome) :is(table,th,td,tr){background:#192229!important;color:#EAF0F5!important;border-color:#56636D!important}
+html body[data-integrated-app] #quizHome .exam-pending{color:#EAF0F5!important}
+html body[data-integrated-app] >header:not(.adrian-tools){background:#0E1318!important;color:#EAF0F5!important}
+html body[data-integrated-app] >header:not(.adrian-tools) :is(strong,span){color:#EAF0F5!important;font-size:16px!important}
+html body[data-integrated-app] #paperScreen#paperScreen #paperHost :is(h1,h2,h3,p,span,strong,small,b,em,label,summary){color:#25282C!important}
+html body[data-integrated-app] #paperScreen#paperScreen #paperHost :is(.keyword,.gap-num,.part-label){background:#EAF0F5!important;color:#25282C!important}
+html body[data-integrated-app] #paperScreen#paperScreen :is(.scan-choices,.worksheet-choices){grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+html body[data-integrated-app] #paperScreen#paperScreen :is(.scan-choice,.worksheet-choice){background:#FFF!important;color:#25282C!important;border:2px solid #8B969C!important;min-height:52px!important;font-size:19px!important}
+html body[data-integrated-app] #paperScreen#paperScreen :is(.scan-choice,.worksheet-choice).selected{background:#E4F4EA!important;border-color:#26754D!important}
+html body[data-integrated-app] #quizPlay#quizPlay #quizContext :is(p,span,strong,b,em){color:#25282C!important}
+html body[data-integrated-app] #quizPlay#quizPlay .option-btn>span{color:#25282C!important}
+html body[data-integrated-app] #kqPlay#kqPlay :is(.play-head,.session-bar){background:var(--integrated-tint)!important;color:#25282C!important}
+html body[data-integrated-app] #kqPlay#kqPlay :is(#kqPosition,#kqMode,#kqScore){color:#25282C!important;font-size:16px!important}
+html body[data-integrated-app] #kqPlay#kqPlay #kqOriginal{background:#FFF!important;color:#25282C!important;font:600 24px/1.35 Roboto,Arial,sans-serif!important;padding:20px!important;border:1px solid #8D969C!important;border-radius:16px!important}
+html body[data-integrated-app] #kqPlay#kqPlay #kqKeyword{color:#25282C!important}
+html body[data-integrated-app] #kqPlay#kqPlay #kqClock{display:none!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#results#results) :is(.campaign-eta-mini,.end-collapsible,.end-collapsible>summary){background:#192229!important;color:#EAF0F5!important;background-image:none!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#results#results) .campaign-eta-mini :is(strong,b,span,small){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen,#results#results) :is(.panel,#endKicker){color:#EAF0F5!important}
+
+html body[data-integrated-app] .app>.topbar,html body[data-integrated-app] .app>.topbar>strong{background:#0E1318!important;color:#EAF0F5!important;font-size:16px!important}
+html body[data-integrated-app] :is(#quizHome#quizHome,#kqHome#kqHome) :is(legend,.timing-advice a){color:#EAF0F5!important}
+html body[data-integrated-app] :is(#quizHome#quizHome,#kqHome#kqHome) :is(.timing-settings label,.kq-read-toggle){background:#192229!important;color:#EAF0F5!important;border:1px solid #56636D!important}
+html body[data-integrated-app] #quizHome#quizHome .timing-settings label:has(input:checked){background:#24313A!important;border-color:var(--integrated-accent)!important}
+html body[data-integrated-app] #flashScreen#flashScreen,html body[data-integrated-app] #flashScreen#flashScreen>.panel{background:var(--integrated-tint)!important;color:#25282C!important;min-height:0!important}
+html body[data-integrated-app] #flashScreen#flashScreen .resulttitle :is(h1,p,.kicker){color:#25282C!important}
+html body[data-integrated-app] #flashScreen#flashScreen #flashCardHost{background:#FFF!important;color:#25282C!important;min-height:0!important;height:auto!important;display:block!important;padding:20px!important;border:1px solid #8D969C!important;border-radius:16px!important}
+html body[data-integrated-app] #flashScreen#flashScreen #flashCardHost :is(div,h2,strong,b){color:#25282C!important;font-family:Roboto,Arial,sans-serif!important;background-image:none!important;min-height:0!important}
+html body[data-integrated-app] #flashScreen#flashScreen #flashCardHost :is(.lesson-source,.lesson-example,.lesson-cue,.lesson-formula){background:#EAF0F5!important;line-height:1.35!important}
+html body[data-integrated-app] #flashScreen#flashScreen .primary{background:var(--integrated-action)!important;color:#FFF!important;background-image:none!important}
+html:root body[data-integrated-app][data-integrated-app] .ad-medal-strip .ad-medal-stat-star::before,html:root body[data-integrated-app][data-integrated-app] .ad-medal-strip .ad-medal-stat-star::after{content:none!important;display:none!important}
+html body[data-integrated-app]{--integrated-reading:19px;--integrated-question:24px;font-size:var(--integrated-reading)!important}
+html[data-adrian-text=normal] body[data-integrated-app]{--integrated-reading:18px;--integrated-question:22px}
+html body[data-integrated-app] :is(#startScreen#startScreen,#home#home,#quizHome#quizHome,#kqHome#kqHome) :is(p,.intro,.subtitle){font-size:var(--integrated-reading)!important}
+html body[data-integrated-app] #gameScreen .question #questionText,html body[data-integrated-app] #kqPlay#kqPlay #kqOriginal,html body[data-integrated-app] #quizPlay#quizPlay #quizContext p{font-size:var(--integrated-question)!important}
+html body[data-integrated-app] :is(#gameScreen,#quizPlay,#game,#exam) :is(button.answer,button.option,.option-btn,textarea,input[type=text]){font-size:var(--integrated-reading)!important}
+html body[data-integrated-app] :is(#answers,.options,#quizAnswerArea.typing):has(input:not([type=hidden]),textarea){display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+
+/* Final secondary-flow contrast corrections, verified with native sessions. */
+html body[data-integrated-app] #flashScreen#flashScreen :is(button.ghost,button.secondary){background:#FFF!important;color:#25282C!important;border-color:#667782!important;background-image:none!important}
+html body[data-integrated-app] :is(#study#study,#flash#flash) :is(.eyebrow,.section-title,#flashPosition){color:#25282C!important}
+html body[data-integrated-app] #resultScreen#resultScreen .review-row{background:#192229!important;border-color:#56636D!important}
+html body[data-integrated-app] #gameScreen#gameScreen .question :is(.verb-prompt,.tense-prompt,.person-prompt,.ql-correction strong){color:#25282C!important}
+html body[data-integrated-app] #statsScreen#statsScreen .skillrow strong{color:#EAF0F5!important}
+
+/* Contract type sizes: secondary labels 16, controls 18, answers 20. */
+html:root body[data-integrated-app] button:not(.ad-keyboard button){font-size:18px!important;line-height:1.35!important}
+html:root body[data-integrated-app] :is(.menu-btn,.mode,.part-card) :is(b,strong){font-size:18px!important}
+html:root body[data-integrated-app] :is(.menu-btn,.mode,.part-card) span{font-size:16px!important;line-height:1.35!important}
+html:root body[data-integrated-app] :is(.meta,.footerline,.kicker,.eyebrow,.adp-kicker,.ald-kicker,.adp-note,.hub-chart-meta,.hc-inspector,#readFirstNote,#buildVersion,.adp-score span,.adp-metric span,.mini-stat span,.metric span,.stats-card span){font-size:16px!important;line-height:1.35!important}
+html:root body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) :is(button.answer,button.option,.option-btn){font-size:20px!important}
+html:root[data-adrian-text=normal] body[data-integrated-app] :is(#gameScreen,#quizPlay,#kqPlay,#game,#exam) :is(button.answer,button.option,.option-btn){font-size:19px!important}
+html body[data-integrated-app] #startScreen#startScreen>.panel{min-height:0!important;height:auto!important}
+html body[data-integrated-app] #startScreen#startScreen .footerline{margin-top:24px!important}
+html body[data-integrated-app] .ad-medal-strip .ad-medal-stat:not(.ad-medal-stat-star){flex:0 0 34px!important}
+
+/* Native engines inject legacy ID selectors after the stylesheet. Override only presentation. */
+html body[data-integrated-app] :is(#startScreen#startScreen,#statsScreen#statsScreen,#coachScreen#coachScreen,#endScreen#endScreen,#resultScreen#resultScreen,#errorsScreen#errorsScreen,#flashScreen#flashScreen,#leagueScreen#leagueScreen,#quizHome#quizHome,#kqHome#kqHome,#home#home,#study#study,#flash#flash,#statistics#statistics,#results#results,#aldOverlay#aldOverlay,#xds-json-overlay#xds-json-overlay,#gameScreen#gameScreen,#game#game,#exam#exam) button:not(.ad-keyboard button){font-size:18px!important}
+html body[data-integrated-app] :is(#startScreen#startScreen,#statsScreen#statsScreen,#coachScreen#coachScreen,#endScreen#endScreen,#resultScreen#resultScreen,#errorsScreen#errorsScreen,#flashScreen#flashScreen,#quizHome#quizHome,#kqHome#kqHome,#home#home,#statistics#statistics,#results#results,#aldOverlay#aldOverlay) :is(small,.meta,.kicker,.footerline,.card span,.menu-btn span,button span,.adp-card span,.adp-skill span,.adp-note,.adp-score span,.mini-stat span,.stat span,.metric span,.lesson-kicker,.coach-note,.coach-rule,.coach-tip,#readFirstNote,#flashMeta){font-size:16px!important;line-height:1.35!important}
+html body[data-integrated-app] :is(#startScreen#startScreen,#home#home) button :is(b,strong){font-size:18px!important}
+html body[data-integrated-app] :is(#gameScreen#gameScreen,#quizPlay#quizPlay,#kqPlay#kqPlay,#game#game,#exam#exam) :is(button.answer,button.option,.option-btn,.kq-choice){font-size:20px!important}
+html[data-adrian-text=normal] body[data-integrated-app] :is(#gameScreen#gameScreen,#quizPlay#quizPlay,#kqPlay#kqPlay,#game#game,#exam#exam) :is(button.answer,button.option,.option-btn,.kq-choice){font-size:19px!important}
+
+html body[data-integrated-app] :is(#coachScreen#coachScreen,#xds-json-overlay#xds-json-overlay) p{font-size:19px!important;line-height:1.35!important}
+html body[data-integrated-app] :is(#statsScreen#statsScreen,#endScreen#endScreen,#resultScreen#resultScreen,#aldOverlay#aldOverlay) :is(.statusbox,.name,.ald-empty,span,em){font-size:16px!important;line-height:1.35!important}
+html body[data-integrated-app] #aldOverlay#aldOverlay h3{font-size:22px!important;line-height:1.35!important}
+html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen) button :is(b,em){font-size:16px!important;line-height:1.35!important}
+html body[data-integrated-app] #gameScreen#gameScreen :is(.qnum span,.hudright span,.points){font-size:16px!important}

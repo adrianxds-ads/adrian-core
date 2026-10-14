@@ -1,4 +1,4 @@
-/* XDS Learning JSON 1.0.0: user-initiated, read-only exports. */
+/* XDS Learning JSON 1.1.0: user-initiated, read-only exports. */
 (function(w){
 'use strict';
 if(w.AdrianLearningJSON)return;
@@ -6,9 +6,10 @@ const SCHEMA='XDS_LEARNING_HANDOFF_V1';
 const KEYS={
  english:'adaptive_english_campaign1_v1',
  'phrasal-verbs':'adaptive_phrasal_verbs_v1',
- pizarras:'pizarras_state_v1',
+ pizarras:'classroom_b2_state_v3',
  'b2-cloze':'adaptive_b2_cloze_campaign1_v1',
  cambridge:'cambridgeB2ExerciseStatsV3',
+ 'cambridge-keyword':'cambridgeKeywordQuizPilotV1',
  'keyword-speaking':'keywordSpeakingStatsV1',
  catala:'adaptive_verbs_catala_campaign1_v1',
  hoti0108:'adaptive_hoti0108_v1'};
@@ -28,6 +29,7 @@ function stateFor(app){
  }catch(e){return {key,error:'No se puede leer el progreso',state:{}};}
 }
 function bad(a){
+ if(Number.isFinite(a?.points)&&a?.qid)return a.points<2;
  if(a?.kind==='wrong'||a?.kind==='incorrect')return true;
  if(a?.kind==='correct'||a?.kind==='neutral')return false;
  return typeof a?.ok==='boolean'?!a.ok:
@@ -40,6 +42,8 @@ function moment(a){
  return typeof v==='number'?v:Date.parse(v)||0;
 }
 function time(a){
+ if(a&&Number.isFinite(a.seconds))return {ms:Math.round(a.seconds*1000),source:'recorded_seconds'};
+ if(a&&Number.isFinite(a.sec))return {ms:Math.round(a.sec*1000),source:'recorded_seconds'};
  if(a&&Number.isFinite(a.responseMs))return {ms:a.responseMs,source:'recorded_response_ms'};
  if(a&&Number.isFinite(a.ms))return {ms:a.ms,source:'recorded_ms'};
  if(a&&Number.isFinite(a.time))return {ms:Math.round(a.time*1000),source:'recorded_seconds'};
@@ -47,6 +51,7 @@ function time(a){
  return {ms:null,source:'not_recorded'};
 }
 function answers(s,app){
+ if(app==='cambridge-keyword')return s.attempts||[];
  if(app==='keyword-speaking')return (s.sessions||[]).flatMap(x=>x.results||[]);
  if(app==='hoti0108')return (s.roundHistory||[]).flatMap(x=>x.timedAnswers||[]);
  if(app==='cambridge'&&Array.isArray(s.attempts))
@@ -57,7 +62,8 @@ function answers(s,app){
  Array.isArray(s.history)?s.history:[];
 }
 function sessions(s,app){
- if(app==='cambridge')return Array.isArray(s.attempts)?s.attempts:[];
+ if(app==='cambridge'){const rows=Array.isArray(s.attempts)?s.attempts:[],out=[],groups=new Map();for(const r of rows){if(!r.quizKind||!r.sessionId){out.push(r);continue;}if(!groups.has(r.sessionId)){const g={id:r.sessionId,sessionId:r.sessionId,quizKind:r.quizKind,part:r.part,paperId:r.paperId,timingMode:r.timingMode,aggregation:'recorded_attempts_by_session_id',correct:0,total:0,durationSec:0,records:[]};groups.set(r.sessionId,g);out.push(g);}const g=groups.get(r.sessionId);g.correct+=Number(r.correct)||0;g.total+=Number(r.total)||0;g.durationSec+=Number(r.durationSec)||0;g.completedAt=r.completedAt;g.records.push(r);}return out;}
+ if(app==='cambridge-keyword')return s.sessions||[];
  if(app==='keyword-speaking')return Array.isArray(s.sessions)?s.sessions:[];
  for(const k of ['sessionHistory','roundHistory','history'])
  if(Array.isArray(s[k])&&(k!=='history'||Array.isArray(s.answerHistory)))return s[k];
@@ -109,8 +115,9 @@ function metrics(s){
  return data;
 }
 async function build(kind,app=appId()){
+ if(app==='cambridge'&&location.pathname.endsWith('/keyword-quiz.html'))app='cambridge-keyword';
  const {key,state,error}=stateFor(app);
- const out={schema:SCHEMA,version:'1.0.0',type:kind,generatedAt:new Date().toISOString(),
+ const out={schema:SCHEMA,version:'1.1.0',type:kind,generatedAt:new Date().toISOString(),
   app:{id:app,url:location.origin+location.pathname},
   source:{device:'local_browser',storageKey:key,archive:'not_checked',crossDeviceVerified:false},
   evidence:{available:!error,missingReason:error||null,
@@ -125,7 +132,9 @@ async function build(kind,app=appId()){
   return out;
  }
  const archived=await archive(key);out.source.archive=archived.status;
- const rows=merge(local,archived.rows.filter(x=>x.bucket.endsWith(':answers')).map(x=>x.row));
+ const archivedAnswers=archived.rows.filter(x=>x.bucket.endsWith(':answers')).map(x=>x.row);
+ const activeAnswers=app==='hoti0108'?local.filter(a=>!archivedAnswers.some(r=>moment(r)===moment(a)&&time(r).ms===time(a).ms&&bad(r)===bad(a))):local;
+ const rows=merge(activeAnswers,archivedAnswers);
  if(kind==='last_error'||kind==='last_answer'){
   const list=kind==='last_error'?rows.filter(bad):rows;
   out.attempt=list.at(-1)||null;out.answerTime=out.attempt?time(out.attempt):{ms:null,source:'not_recorded'};
@@ -202,5 +211,5 @@ function openPanel({app=appId(),technical}={}){
  });
  overlay.querySelector('.xds-json-close').focus();return overlay;
 }
-w.AdrianLearningJSON=Object.freeze({version:'1.0.0',schema:SCHEMA,build,openPanel,appId});
+w.AdrianLearningJSON=Object.freeze({version:'1.1.0',schema:SCHEMA,build,openPanel,appId});
 })(window);

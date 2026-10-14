@@ -1,7 +1,7 @@
 (function(){"use strict";
 if(window.AdrianGarden)return;
 
-const CORE="https://adrianxds-ads.github.io/adrian-core/";
+const CORE="/adrian-core/";
 const REGISTRY_URL=CORE+"garden/registry.json?v=3";
 const SNAPSHOT_KEY="adrian_github_garden_v1";
 const STAR_KEY="adrian_hub_stars_v1",STAR_STEP=5;

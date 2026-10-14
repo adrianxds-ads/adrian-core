@@ -2,7 +2,7 @@
   if(window.__ADRIAN_HUB_NAV__)return;
   window.__ADRIAN_HUB_NAV__=true;
 
-  const HUB_URL='https://adrianxds-ads.github.io/adrian-hub/';
+  const HUB_URL='/adrian-hub/';
   const CHATGPT_DEFAULT=HUB_URL+'chatgpt.html';
   const READ_KEY='adrian_readable_large_v1';
   const CHATGPT_KEY='adrian_chatgpt_hub_url';
@@ -84,14 +84,14 @@
     const id=detectedAppId();
     const fallback={
       hub:{id:'hub',name:'Adrián Hub',group:'Sistema',kind:'pwa-hub',url:HUB_URL,repo:'https://github.com/adrianxds-ads/adrian-hub'},
-      english:{id:'english',name:'Adaptive English',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-english/',repo:'https://github.com/adrianxds-ads/adaptive-english'},
-      pizarras:{id:'pizarras',name:'Classroom B2',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-pizarras/',repo:'https://github.com/adrianxds-ads/adaptive-pizarras'},
-      'phrasal-verbs':{id:'phrasal-verbs',name:'Phrasal Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-phrasal-verbs/',repo:'https://github.com/adrianxds-ads/adaptive-phrasal-verbs'},
-      'b2-cloze':{id:'b2-cloze',name:'B2 Multiple-Choice Cloze',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/b2-multiple-choice-cloze/',repo:'https://github.com/adrianxds-ads/b2-multiple-choice-cloze'},
-      cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'https://adrianxds-ads.github.io/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
- 'keyword-speaking':{id:'keyword-speaking',name:'Key Word Speaking',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-keyword-speaking/',repo:'https://github.com/adrianxds-ads/adaptive-keyword-speaking'},
-      catala:{id:'catala',name:'Català · Verbs',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-verbs-catala/',repo:'https://github.com/adrianxds-ads/adaptive-verbs-catala'},
-      hoti0108:{id:'hoti0108',name:'HOTI0108',group:'Estudio',kind:'pwa-study',url:'https://adrianxds-ads.github.io/adaptive-hoti0108/',repo:'https://github.com/adrianxds-ads/adaptive-hoti0108'},
+      english:{id:'english',name:'Adaptive English',group:'Estudio',kind:'pwa-study',url:'/adaptive-english/',repo:'https://github.com/adrianxds-ads/adaptive-english'},
+      pizarras:{id:'pizarras',name:'Classroom B2',group:'Estudio',kind:'pwa-study',url:'/adaptive-pizarras/',repo:'https://github.com/adrianxds-ads/adaptive-pizarras'},
+      'phrasal-verbs':{id:'phrasal-verbs',name:'Phrasal Verbs',group:'Estudio',kind:'pwa-study',url:'/adaptive-phrasal-verbs/',repo:'https://github.com/adrianxds-ads/adaptive-phrasal-verbs'},
+      'b2-cloze':{id:'b2-cloze',name:'B2 Multiple-Choice Cloze',group:'Estudio',kind:'pwa-study',url:'/b2-multiple-choice-cloze/',repo:'https://github.com/adrianxds-ads/b2-multiple-choice-cloze'},
+      cambridge:{id:'cambridge',name:'Cambridge B2',group:'Estudio',kind:'pwa-exam',url:'/adaptive-exam/',repo:'https://github.com/adrianxds-ads/adaptive-exam'},
+ 'keyword-speaking':{id:'keyword-speaking',name:'Key Word Speaking',group:'Estudio',kind:'pwa-study',url:'/adaptive-keyword-speaking/',repo:'https://github.com/adrianxds-ads/adaptive-keyword-speaking'},
+      catala:{id:'catala',name:'Català · Verbs',group:'Estudio',kind:'pwa-study',url:'/adaptive-verbs-catala/',repo:'https://github.com/adrianxds-ads/adaptive-verbs-catala'},
+      hoti0108:{id:'hoti0108',name:'HOTI0108',group:'Estudio',kind:'pwa-study',url:'/adaptive-hoti0108/',repo:'https://github.com/adrianxds-ads/adaptive-hoti0108'},
       entrenamiento:{id:'entrenamiento',name:'Entrenamiento 2.0',group:'Salud',kind:'hub-module',url:HUB_URL+'apps/entrenamiento/'},
       dcinbox:{id:'dcinbox',name:'DC Inbox',group:'Sistema',kind:'hub-module',url:HUB_URL+'apps/dc-inbox/'},
       limpieza:{id:'limpieza',name:'Limpieza 2.2',group:'Hogar',kind:'private-pwa',url:location.origin+'/limpieza/',repo:'https://github.com/adrianxds-ads/limpieza-2.0'}
@@ -212,7 +212,7 @@
     if(!window.AdrianLearningJSON){
       if(!jsonLoader)jsonLoader=new Promise((resolve,reject)=>{
         const s=document.createElement('script');
-        s.src='https://adrianxds-ads.github.io/adrian-core/components/adrian-learning-json.js?v=1.0.0-20261009';
+        s.src='/adrian-core/components/adrian-learning-json.js?v=1.1.0-20261013';
         s.onload=()=>window.AdrianLearningJSON?resolve():reject(Error('Learning JSON unavailable'));
         s.onerror=()=>reject(Error('Learning JSON could not load'));
         document.head.appendChild(s);
@@ -315,7 +315,7 @@
     }else document.body.appendChild(box);
     if(document.querySelector("#timerText,#quizCountdown")&&!document.querySelector('script[src*="/hub-quiz-ux.js"]')){
       const timerModule=document.createElement("script");
-      timerModule.src="https://adrianxds-ads.github.io/adrian-core/components/hub-quiz-ux.js?v=20261011-2";
+      timerModule.src="/adrian-core/components/hub-quiz-ux.js?v=20261011-2";
       timerModule.async=true;
       document.head.appendChild(timerModule);
     }

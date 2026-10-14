@@ -1,12 +1,14 @@
 # Núcleo Design System · Especificación maestra
 
-**Diseño v1.0 · 12/10/2026**
+**Diseño: v1.0 histórica + enmienda v1.1 recuperada · 14/10/2026**
 **Estado:** seis fases de diseño aprobadas; implantación integral todavía pendiente.
 **Alcance:** tarjetas de Adrián Hub, ocho aplicaciones didácticas y módulos compatibles.
 
 > Este archivo es un contrato de DISEÑO para próximas intervenciones, no prueba de implementación. La última versión del Hub comprobada al preparar la especificación era 30.5.13 (3ccbd92); contrastar de nuevo origin/main y GitHub Pages antes de editar.
 
 ## 0. Fuente de verdad y precedencia
+
+La enmienda v1.1 de la sección 12 prevalece sobre reglas incompatibles de v1.0. Los cierres publicados y ejemplos anteriores se conservan como historia, no como estado del candidato actual.
 
 - Este documento es la **única especificación maestra del rediseño**. No crear otra colección paralela de reglas visuales; mantener las fuentes CSS e historial.
 - El registro operativo de identidad es adrian-hub/apps.json: IDs, nombres y campo brandColor. adrian-hub/versions.json registra versiones, evidencias y cambios; cada juego conserva su repositorio y lógica.
@@ -170,3 +172,17 @@ Extender el lenguaje visual a módulos auxiliares sin tratar sus funciones como 
 - Integridad de nueve cachés, rechazo de builds dañados, Version Center y **69 fingerprints** correctos. Navegador de GitHub Pages comprobó Grammar 3.36.9 a 390/1280 y Hub 30.5.14; CSS, JS y service-worker públicos coinciden byte a byte con archivos de la entrega.
 - No se utilizó el perfil personal de progreso ni se alteró trabajo local sin confirmar. **No** se certifica en esta puerta la prueba física del Pixel, zoom 200 %, dictado/teclado real o sincronización entre dos dispositivos; esas comprobaciones pertenecen a su matriz específica de aceptación.
 - **Siguiente paso · Puerta 2:** auditar los selectores del piloto frente a las reglas existentes y extraer únicamente los componentes compartibles a Adrián Core. Validarlos en cada app antes de propagarlos, sin copiar masivamente los overrides locales ni tocar motores o bancos.
+
+
+## 12. Enmienda v1.1 recuperada y auditoría contractual · 14/10/2026
+Las decisiones siguientes proceden de la ratificación del Contrato Maestro Integrado v1.1 del 12/10/2026 y del encargo operativo posterior. Sustituyen las reglas incompatibles de v1.0 de este mismo archivo. No se presenta este anexo como transcripción integral de la conversación original.
+- Portadas, estadísticas y resultados: modo oscuro, base #0E1318; preguntas claras tintadas por aplicación, tarjetas blancas y texto #25282C.
+- Roboto, lectura prolongada en móvil, espaciados coherentes y controles táctiles cómodos; navegación contextual sin duplicaciones.
+- Cuatro respuestas en 2×2 donde el motor ofrece cuatro alternativas; conservar tareas escritas y motores heterogéneos.
+- Progreso segmentado encima del enunciado, separado del reloj. Mostrar respuestas efectivamente registradas, sin dar por completada la pregunta actual.
+- Temporizador de 20 segmentos bajo las respuestas, derivado del tiempo real del motor. No imponer 20 segundos; conservar Read First, estados sin límite, pausa y corrección.
+- Identidades de actividad: Grammar #CBD8E3/#4A90E2; Phrasal #D9D0E2/#9B59B6; Classroom #E5D8C9/#F29E4C; Cloze #CEE0DB/#37BFB5; Cambridge #E4D3DA/#E66F8D; Transform #DAE0CC/#A9CE5E; Turismo #E2D7C9/#D6A26B; Català #E3DECA/#F1C40F.
+- Conservar bancos, identificadores, algoritmos, sesiones, puntuación, estadísticas, medallas, estrellas, históricos, estudio, Coach, JSON, importación/exportación, preferencias y progresos compatibles. Datos e inferencias diferenciados; no inventar sesiones ni tiempos.
+- Mantener los criterios de accesibilidad y gamificación compatibles de las secciones anteriores: tres medallas compactas con cantidades, estrella independiente y cifra exterior; no cuatro medallas circulares.
+- Una aplicación no se declara terminada por superar un quiz: debe cumplir el diseño, conservar sus recorridos y contenidos, guardar/recuperar datos y superar sus pruebas pertinentes.
+Estado actual: candidato aislado en auditoría y corrección. Sin publicación autorizada. Evidencia contractual en contract-audit-20261014/ del laboratorio; checkpoint en WORK-STATUS.md.
