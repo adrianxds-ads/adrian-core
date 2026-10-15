@@ -229,3 +229,25 @@ html body[data-integrated-app] :is(#statsScreen#statsScreen,#endScreen#endScreen
 html body[data-integrated-app] #aldOverlay#aldOverlay h3{font-size:22px!important;line-height:1.35!important}
 html body[data-integrated-app] :is(#endScreen#endScreen,#resultScreen#resultScreen) button :is(b,em){font-size:16px!important;line-height:1.35!important}
 html body[data-integrated-app] #gameScreen#gameScreen :is(.qnum span,.hudright span,.points){font-size:16px!important}
+
+/* Contractual statistics hierarchy (Grammar/Català only): shared charts lead,
+   native historical charts and model counters remain available on demand. */
+html body[data-integrated-app] #statsScreen .stats-native-details{
+  box-sizing:border-box;min-width:0;max-width:100%;
+  margin:16px 0;border:1px solid #56636D;border-radius:12px;
+  background:#192229;color:#EAF0F5;overflow:clip;
+}
+html body[data-integrated-app] #statsScreen .stats-native-details>summary{
+  cursor:pointer;min-height:52px;padding:14px 16px;
+  color:#EAF0F5;font:650 18px/1.35 Roboto,Arial,sans-serif;
+  overflow-wrap:break-word;
+}
+html body[data-integrated-app] #statsScreen .stats-native-details[open]>summary{
+  border-bottom:1px solid #56636D;
+}
+html body[data-integrated-app] #statsScreen .stats-native-details>summary:focus-visible{
+  outline:3px solid #4A90E2;outline-offset:-3px;
+}
+html body[data-integrated-app] #statsScreen .stats-native-details> :not(summary){
+  box-sizing:border-box;max-width:calc(100% - 24px);margin:12px;
+}
