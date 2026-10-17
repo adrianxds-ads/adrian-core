@@ -186,3 +186,15 @@ Las decisiones siguientes proceden de la ratificación del Contrato Maestro Inte
 - Mantener los criterios de accesibilidad y gamificación compatibles de las secciones anteriores: tres medallas compactas con cantidades, estrella independiente y cifra exterior; no cuatro medallas circulares.
 - Una aplicación no se declara terminada por superar un quiz: debe cumplir el diseño, conservar sus recorridos y contenidos, guardar/recuperar datos y superar sus pruebas pertinentes.
 Estado actual: candidato aislado en auditoría y corrección. Sin publicación autorizada. Evidencia contractual en contract-audit-20261014/ del laboratorio; checkpoint en WORK-STATUS.md.
+
+
+## Ergonomía de quiz · petición de Adrián del 17/10/2026
+La propuesta aportada de Gemini se integra en Grammar, Cloze, Phrasal y Classroom. Cambridge queda excluido. Esta enmienda prevalece sobre las cuatro opciones cromáticas o centradas anteriores únicamente en estos quizzes; conservar portadas, identidad, premios y restantes módulos.
+
+- Fuente optativa canónica: design/quiz-ergonomics.css y components/quiz-ergonomics.js 1.0.0. Las cuatro apps cargan copias locales idénticas para funcionar sin conexión. Ningún otro módulo importa esta pareja por defecto.
+- Pila 1×4, letra A/B/C/D neutra a la izquierda, texto alineado a la izquierda; clase grid-2x2 disponible como variante de presentación. Colores de validación verde/rojo y respuesta correcta amarilla. Texto esencial desde 19px; letras de los distintivos oscuras en verde/rojo para conservar legibilidad.
+- Fondo #EEF2F6 y tarjeta blanca en el ejercicio. Hueco azul, progreso semántico por respuesta y un único temporizador visible: barra continua y segundos enteros. El límite real sigue siendo 15 segundos después de Read First. No alterar controles de lectura/recuerdo, pausas, evaluación ni selección adaptativa.
+- Medir y reservar altura usando los enunciados/opciones de la sesión y su corrección; repetir al cambiar anchura o escala. min-height:152px por sí solo no evita saltos de frases largas. Se eliminan los antiguos scrolls internos del escenario; una sola página desplazable conserva acceso a textos extensos y controles.
+- El controlador es una adaptación para coordinar los motores existentes, no un motor sustitutivo. Referencias cancelables a espera, transición y reintento; callbacks del reloj capturan sesión, pregunta y generación. Pausa 850ms tras acierto, 1850ms tras error o tiempo agotado, más transición 150ms. Se cancela al cambiar de pregunta, salir o finalizar. Respetar movimiento reducido.
+- Classroom conserva su duración y persistencia de contrato: si vence durante la corrección final, espera a terminarla antes de cerrar una sola vez.
+- Integrado y verificado en perfiles aislados: rondas con acierto/error, doble entrada, callbacks antiguos, suspensión y error recuperable; vencimiento de 15s, salida/reinicio, recarga, clase y matriz de anchuras/escala. No equivale a verificación física en el Pixel. El cierre de publicación y sus límites se registra en adrian-hub/docs/ACCEPTANCE_TESTS.md.
