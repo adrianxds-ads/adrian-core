@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.8';
+const VERSION='1.0.9';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -15,6 +15,24 @@ let applying=false,flushTimer=0,pullTimer=0,flushing=false;
 const dirty=new Map();
 const serverMerged=new Set();
 const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1','keywordSpeakingStatsV1']);
+// Explicit recovery only: restore study data, never general settings, credentials or unrelated applications.
+const RECOVERY_KEY=/^(?:adaptive_|pizarras_state_v1$|classroom_b2_state_v3$|cambridgeB2ExerciseStatsV3$|keywordSpeakingStatsV1$|b2_mcc_state_v1$|adrian_hub_(?:stars|oca|path_game)|adrian_language_game_v1$|adrian_github_garden_v1$|adrianEasyCatalanTaskSessionsV1$)/;
+function recoveryDominates(key,remote,local){
+ if(remoteHasMoreProgress(key,remote,local))return true;
+ if(/^adaptive_(?:english|b2_cloze|verbs_catala)_global_level_v1$/.test(key)){
+  const a=Number(remote),b=Number(local);
+  return remote!==null&&local!==null&&Number.isSafeInteger(a)&&Number.isSafeInteger(b)&&a>b;
+ }
+ if(!['b2_mcc_state_v1','adrian_language_game_v1'].includes(key))return false;
+ try{
+  const a=JSON.parse(decodeStored(remote)),b=JSON.parse(decodeStored(local));
+  if(!a||!b||typeof a!=='object'||typeof b!=='object')return false;
+  const fields=['level','sessions','totalAttempts'],arrays=['history','sessionHistory'];
+  const left=[...fields.map(x=>Number(a[x])||0),...arrays.map(x=>Array.isArray(a[x])?a[x].length:0)];
+  const right=[...fields.map(x=>Number(b[x])||0),...arrays.map(x=>Array.isArray(b[x])?b[x].length:0)];
+  return left.every((n,i)=>n>=right[i])&&left.some((n,i)=>n>right[i]);
+ }catch{return false;}
+}
 // Only immutable, identified Cambridge attempts can be joined without inventing counters.
 function mergeProgress(key,left,right){
  if(key!=='cambridgeB2ExerciseStatsV3')return null;
@@ -55,9 +73,21 @@ function progressRegresses(key,currentValue,incomingValue){
  return Object.keys(a).some(k=>b[k]<a[k]);
 }
 function remoteHasMoreProgress(key,remoteValue,localValue){return GUARDED_KEYS.has(key)&&progressRegresses(key,remoteValue,localValue)&&!progressRegresses(key,localValue,remoteValue);}
+function encodeRecoveryCopy(value){
+ if(typeof value!=='string'||value.length<32768||!window.pako)return value;
+ try{
+  const bytes=pako.gzip(value),parts=[];
+  for(let i=0;i<bytes.length;i+=8192)parts.push(String.fromCharCode(...bytes.subarray(i,i+8192)));
+  return STORED_PREFIX+btoa(parts.join(''));
+ }catch{return value;}
+}
 function preserve(key,value){
  if(value===null||!GUARDED_KEYS.has(key))return true;
- try{let stamp=Date.now();while(localStorage.getItem(key+'_recovery_'+stamp)!==null)stamp++;nativeSet.call(localStorage,key+'_recovery_'+stamp,value);return true;}catch{status('○ conflicto guardado local','conflict');return false;}
+ try{
+  let stamp=Date.now();while(localStorage.getItem(key+'_recovery_'+stamp)!==null)stamp++;
+  // Recovery copies are stored under distinct keys; compress them without changing the original.
+  nativeSet.call(localStorage,key+'_recovery_'+stamp,encodeRecoveryCopy(value));return true;
+ }catch{status('○ conflicto guardado local','conflict');return false;}
 }
 
 function eligible(key){
@@ -120,20 +150,34 @@ async function flush(){
   meta.revision=Math.max(meta.revision,revision);saveMeta();status('☁ sincronizado','ok');return true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}finally{flushing=false;saveMeta();}
 }
-async function pull(initial=false){
+async function pull(initial=false,recover=false){
  clearTimeout(pullTimer);pullTimer=0;status('☁ sincronizando…','busy');
  try{
   const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}}
-  const seed=initial&&!localStorage.getItem(BASELINE_KEY),full=initial&&(!localStorage.getItem(RECONCILE_KEY)||seed),since=full?0:meta.revision;
+  const seed=initial&&!localStorage.getItem(BASELINE_KEY),full=recover||(initial&&(!localStorage.getItem(RECONCILE_KEY)||seed)),since=full?0:meta.revision;
   const r=await fetch(ENDPOINT+'/changes?since='+encodeURIComponent(since),{mode:'cors',cache:'no-store',targetAddressSpace:'local'});if(!r.ok)throw new Error('HTTP '+r.status);
-  const x=await r.json(),entries=x.entries||{};let changed=false;
+  const x=await r.json(),entries=x.entries||{};let changed=false,restored=0,protectedCount=0;
   applying=true;
   try{
    for(const [k,row] of Object.entries(entries)){
-    if(!eligible(k)||!row)continue;
+    if(!eligible(k)||!row||(recover&&!RECOVERY_KEY.test(k)))continue;
     if(row.deleted&&GUARDED_KEYS.has(k))continue;
     const remoteTime=Number(row.updatedAt)||0,localTime=Number(meta.times[k])||0,rowRevision=Math.max(0,Number(row.revision)||Number(x.revision)||0);
     const current=localStorage.getItem(k),remoteValue=!row.deleted&&typeof row.value==='string'?decodeStored(row.value):row.value;
+    if(recover){
+     if(row.deleted)continue;
+     if(typeof remoteValue!=='string')continue;
+     const more=current!==null&&recoveryDominates(k,remoteValue,current);
+     if(current!==null&&!more&&current!==remoteValue){protectedCount++;continue;}
+     if(current!==remoteValue){
+      if(!preserve(k,current))continue;
+      // nativeSet captures the compressed storage wrapper when that wrapper loads first.
+      nativeSet.call(localStorage,k,remoteValue);changed=true;restored++;
+     }
+     dirty.delete(k);serverMerged.delete(k);meta.times[k]=Math.max(localTime,remoteTime);
+     if(rowRevision)meta.baseRevisions[k]=rowRevision;
+     continue;
+    }
     if(serverMerged.has(k)&&!row.deleted&&typeof remoteValue==='string'){
      if(current!==remoteValue){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,remoteValue);changed=true;}
      dirty.delete(k);serverMerged.delete(k);meta.times[k]=Math.max(localTime,remoteTime);if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;
@@ -171,16 +215,16 @@ async function pull(initial=false){
   if(seed)try{nativeSet.call(localStorage,BASELINE_KEY,'1');}catch{}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
   if(initial){for(const [k,v] of before){if(!(k in entries)&&!meta.times[k])mark(k,v,false);}}
-  status('☁ sincronizado','ok');
+  status(recover?'☁ progreso recuperado: '+restored+' registros':'☁ sincronizado','ok');
   if(changed){window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));if(initial&&!sessionStorage.getItem('adrian_sync_reload_v2')){sessionStorage.setItem('adrian_sync_reload_v2','1');saveMeta();location.reload();}}
-  return true;
+  return recover?{restored,protected:protectedCount}:true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
  finally{pullTimer=setTimeout(()=>pull(false),30000);}
 }
 window.addEventListener('storage',e=>{if(e.storageArea===localStorage&&eligible(e.key))mark(e.key,e.newValue,e.newValue===null);});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull(false);else flush();});
 window.addEventListener('pagehide',()=>{flush();});
-window.AdrianSync=Object.freeze({version:VERSION,pull,flush,status,endpoint:ENDPOINT,deviceId:meta.deviceId});
+window.AdrianSync=Object.freeze({version:VERSION,pull,recover:()=>pull(true,true),flush,status,endpoint:ENDPOINT,deviceId:meta.deviceId});
 if(dirty.size)flushTimer=setTimeout(flush,5000);
 setTimeout(()=>pull(true),0);
 })();
