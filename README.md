@@ -66,4 +66,6 @@ Pruebas ficticias sin red real ni progreso del usuario: `python scripts/test_cla
 ## Sync 1.0.13 · cerrar conflictos por revisiones obsoletas (31/10/2026)
 Los rechazos repetidos por una `baseRevision` caducada no deben retransmitirse indefinidamente. Si el estado local es inequívocamente superior en sesiones y respuestas, se actualiza su base a la revisión actual para intentar guardarlo sin inventar datos. Si la única diferencia corresponde a un máximo de dos sesiones locales y 30 respuestas adicionales, se descarta ese residuo y se adopta el estado oficial del servidor. En estados incomparables no se inventa ninguna fusión. El servidor alinea su comprobación de regresiones con sesiones/respuestas reales de las campañas y de Classroom, en lugar de comparar niveles históricos de dificultad.
 
-Regresión sintética: `python scripts/test_stale_sync_conflict.py`. La comprobación de la partida real de Pixel tras la publicación es una verificación distinta; este test no accede a datos del usuario.
+**Corrección 1.0.14:** el descarte automático de hasta dos sesiones se limita a las colas residuales fechadas antes del 31/10/2026 a las 21:42 UTC y con revisión base obsoleta. Una sesión nueva realizada sin conexión, aunque sea solo una, se conserva y se sincroniza si supera coherentemente al servidor.
+
+Regresión sintética: `python scripts/test_stale_sync_conflict.py` (incluye reconexión futura sin perder una sesión). La comprobación de la partida real de Pixel tras la publicación es una verificación distinta; este test no accede a datos del usuario.

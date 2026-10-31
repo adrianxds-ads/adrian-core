@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.13';
+const VERSION='1.0.14';
 // Localhost, file previews and QA origins never participate in the official campaign.
 // This must run before patching localStorage or scheduling any remote request.
 if(location.origin!=='https://adrianxds-ads.github.io'){
@@ -85,10 +85,14 @@ function progressRegresses(key,currentValue,incomingValue){
  if(!a)return false;if(!b)return true;
  return Object.keys(a).some(k=>b[k]<a[k]);
 }
-// Discard at most two locally queued test sessions when the official server
-// already has an established campaign. Never apply to unrelated app data.
-function tinyResidual(key,localValue,remoteValue){
+// One-time cleanup of the pre-fix residual queue only. Future legitimate offline
+// sessions must never be dropped merely because the difference is 1-2 rounds.
+function tinyResidual(key,localValue,remoteValue,remoteRevision){
  if(!['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_phrasal_verbs_v1'].includes(key))return false;
+ const pending=dirty.get(key);
+ const cutoff=Date.parse('2026-10-31T21:42:00Z');
+ if(!pending||!Number(pending.baseRevision)||Number(pending.baseRevision)>=Number(remoteRevision)||
+    !Number.isFinite(Number(pending.updatedAt))||Number(pending.updatedAt)>cutoff)return false;
  const local=progressScore(localValue,key),remote=progressScore(remoteValue,key);
  if(!local||!remote||!Number.isSafeInteger(local.sessions)||!Number.isSafeInteger(remote.sessions)||remote.sessions<=0)return false;
  const field=key==='adaptive_phrasal_verbs_v1'?'answers':'totalAttempts';
@@ -248,7 +252,7 @@ async function pull(initial=false,recover=false){
      // revision forever: rebase an objectively richer local snapshot onto the
      // current remote revision, or discard a bounded residual (<=2 sessions).
      if(dirty.has(k)&&!remoteDominates&&current!==null){
-       if(tinyResidual(k,current,remoteValue)){
+       if(tinyResidual(k,current,remoteValue,rowRevision)){
          nativeSet.call(localStorage,k,remoteValue);changed=true;
          dirty.delete(k);serverMerged.delete(k);meta.times[k]=remoteTime;
          if(rowRevision)meta.baseRevisions[k]=rowRevision;

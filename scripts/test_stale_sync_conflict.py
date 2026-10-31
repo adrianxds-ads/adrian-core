@@ -9,7 +9,7 @@ URL='https://adrianxds-ads.github.io/qa-sync'
 END='https://adrin.tail8fd071.ts.net/hub-sync'
 def state(sessions,answers):
  return json.dumps({'level':sessions+1,'sessions':sessions,'answers':answers,'studySec':sessions*70,'history':[]},separators=(',',':'))
-def scenario(browser,name,local,remote,expected,base=1150):
+def scenario(browser,name,local,remote,expected,base=1150,stamp=1500):
  ctx=browser.new_context(service_workers='block')
  calls=[];errors=[]
  def route(r):
@@ -22,7 +22,7 @@ def scenario(browser,name,local,remote,expected,base=1150):
    data=json.loads(r.request.post_data)
    calls.append(data)
    rows=data['changes']
-   ok=rows.get(KEY,{}).get('baseRevision')==1151 and name=='rebase_larger_valid_local'
+   ok=rows.get(KEY,{}).get('baseRevision')==1151 and name in ('rebase_larger_valid_local','preserve_future_offline_session')
    return r.fulfill(status=200,content_type='application/json',body=json.dumps(dict(revision=1152 if ok else 1151,acceptedKeys=[KEY] if ok else [],accepted=int(ok),conflictKeys=[] if ok else [KEY])))
   return r.abort()
  ctx.route('**/*',route)
@@ -34,10 +34,10 @@ def scenario(browser,name,local,remote,expected,base=1150):
   localStorage.setItem(KEY,arg.local);
   localStorage.setItem('adrian_sync_reconciled_102','1');
   localStorage.setItem('adrian_sync_baselines_107','1');
-  const pending={};pending[KEY]={value:arg.local,deleted:false,updatedAt:1500,baseRevision:arg.base};
+  const pending={};pending[KEY]={value:arg.local,deleted:false,updatedAt:arg.stamp,baseRevision:arg.base};
   localStorage.setItem('adrian_sync_meta_v1',JSON.stringify({revision:1150,baseRevisions:{[KEY]:arg.base},times:{[KEY]:1500},deviceId:'qa-device',pending}));
   sessionStorage.setItem('adrian_sync_reloaded_revision_110','1151');
- }""",{'local':local,'base':base})
+ }""",{'local':local,'base':base,'stamp':stamp})
  p.add_script_tag(content=SOURCE)
  p.wait_for_function('AdrianSync?.baselineChecked?.()===true',timeout=10000)
  p.wait_for_timeout(180)
@@ -61,5 +61,6 @@ with sync_playwright() as pw:
  browser=pw.chromium.launch(executable_path=r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',headless=True)
  scenario(browser,'discard_one_test_session',state(54,610),state(53,595),state(53,595))
  scenario(browser,'rebase_larger_valid_local',state(58,660),state(53,595),state(58,660))
+ scenario(browser,'preserve_future_offline_session',state(54,610),state(53,595),state(54,610),stamp=1793560000000)
  browser.close()
 print('STALE_CONFLICT_REGRESSIONS_PASS')
