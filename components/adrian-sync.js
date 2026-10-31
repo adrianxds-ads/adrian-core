@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.10';
+const VERSION='1.0.11';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -122,7 +122,7 @@ function status(text,kind='ok'){
  window.dispatchEvent(new CustomEvent('adrian-sync-status',{detail:{text,kind,revision:meta.revision}}));
  const hub=location.pathname.startsWith('/adrian-hub');
  const study=/^\/(?:adaptive-english|b2-multiple-choice-cloze|adaptive-verbs-catala|adaptive-phrasal-verbs)\//.test(location.pathname);
- if(!hub&&!(study&&(kind==='offline'||kind==='conflict'))){document.getElementById('adrianSyncStatus')?.remove();return;}
+ if(!hub&&!(study&&(kind==='offline'||kind==='conflict'||kind==='blocked'))){document.getElementById('adrianSyncStatus')?.remove();return;}
  if(study&&!hub&&kind==='offline')text='⚠ Sync inaccesible: el progreso puede estar incompleto';
  if(!document.body){document.addEventListener('DOMContentLoaded',()=>status(text,kind),{once:true});return;}
  let el=document.getElementById('adrianSyncStatus');
@@ -196,6 +196,12 @@ async function pull(initial=false,recover=false){
      if(rowRevision)meta.baseRevisions[k]=rowRevision;
      continue;
     }
+    // A queued entry that already matches the server is not a conflict.
+    if(!row.deleted&&typeof remoteValue==='string'&&dirty.has(k)&&sameStored(current,remoteValue)){
+      dirty.delete(k);serverMerged.delete(k);meta.times[k]=Math.max(localTime,remoteTime);
+      if(rowRevision)meta.baseRevisions[k]=rowRevision;
+      continue;
+    }
     if(serverMerged.has(k)&&!row.deleted&&typeof remoteValue==='string'){
      if(current!==remoteValue){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,remoteValue);changed=true;}
      dirty.delete(k);serverMerged.delete(k);meta.times[k]=Math.max(localTime,remoteTime);if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;
@@ -253,7 +259,7 @@ async function pull(initial=false,recover=false){
 window.addEventListener('storage',e=>{if(e.storageArea===localStorage&&eligible(e.key))mark(e.key,e.newValue,e.newValue===null);});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull(false);else flush();});
 window.addEventListener('pagehide',()=>{flush();});
-window.AdrianSync=Object.freeze({version:VERSION,pull,recover:()=>pull(true,true),flush,status,endpoint:ENDPOINT,deviceId:meta.deviceId});
+window.AdrianSync=Object.freeze({version:VERSION,pull,recover:()=>pull(true,true),flush,status,baselineChecked:()=>baselineReady,endpoint:ENDPOINT,deviceId:meta.deviceId});
 if(dirty.size)flushTimer=setTimeout(flush,5000);
 setTimeout(()=>pull(true),0);
 })();
