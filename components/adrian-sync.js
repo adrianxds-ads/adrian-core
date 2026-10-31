@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.12';
+const VERSION='1.0.13';
 // Localhost, file previews and QA origins never participate in the official campaign.
 // This must run before patching localStorage or scheduling any remote request.
 if(location.origin!=='https://adrianxds-ads.github.io'){
@@ -84,6 +84,17 @@ function progressRegresses(key,currentValue,incomingValue){
  const a=progressScore(currentValue,key),b=progressScore(incomingValue,key);
  if(!a)return false;if(!b)return true;
  return Object.keys(a).some(k=>b[k]<a[k]);
+}
+// Discard at most two locally queued test sessions when the official server
+// already has an established campaign. Never apply to unrelated app data.
+function tinyResidual(key,localValue,remoteValue){
+ if(!['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_phrasal_verbs_v1'].includes(key))return false;
+ const local=progressScore(localValue,key),remote=progressScore(remoteValue,key);
+ if(!local||!remote||!Number.isSafeInteger(local.sessions)||!Number.isSafeInteger(remote.sessions)||remote.sessions<=0)return false;
+ const field=key==='adaptive_phrasal_verbs_v1'?'answers':'totalAttempts';
+ return local.sessions>=remote.sessions&&local.sessions-remote.sessions<=2&&
+   Number.isSafeInteger(local[field])&&Number.isSafeInteger(remote[field])&&
+   local[field]>=remote[field]&&local[field]-remote[field]<=30;
 }
 function remoteHasMoreProgress(key,remoteValue,localValue){
  if(GUARDED_KEYS.has(key)&&progressRegresses(key,remoteValue,localValue)&&!progressRegresses(key,localValue,remoteValue))return true;
@@ -233,12 +244,32 @@ async function pull(initial=false,recover=false){
     if(GUARDED_KEYS.has(k)&&!row.deleted&&typeof remoteValue==='string'){
      if(current===remoteValue){if(dirty.has(k)&&sameStored(dirty.get(k).value,current))dirty.delete(k);meta.times[k]=Math.max(localTime,remoteTime);if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
      const remoteDominates=current!==null&&remoteHasMoreProgress(k,remoteValue,current);
-     // A locally queued zero must never block recovery of a strictly richer remote snapshot.
-     if(dirty.has(k)&&!remoteDominates)continue;
+     // Resolve a stale baseline before retrying. Never replay the same rejected
+     // revision forever: rebase an objectively richer local snapshot onto the
+     // current remote revision, or discard a bounded residual (<=2 sessions).
+     if(dirty.has(k)&&!remoteDominates&&current!==null){
+       if(tinyResidual(k,current,remoteValue)){
+         nativeSet.call(localStorage,k,remoteValue);changed=true;
+         dirty.delete(k);serverMerged.delete(k);meta.times[k]=remoteTime;
+         if(rowRevision)meta.baseRevisions[k]=rowRevision;
+         continue;
+       }
+       if(remoteHasMoreProgress(k,current,remoteValue)&&rowRevision){
+         const updatedAt=Math.max(Date.now(),localTime,remoteTime)+1;
+         meta.times[k]=updatedAt;meta.baseRevisions[k]=rowRevision;
+         dirty.set(k,{value:current,deleted:false,updatedAt,baseRevision:rowRevision});continue;
+       }
+       // Incomparable branches must not be silently combined or overwritten.
+       continue;
+     }
      if(current!==null){
       if(remoteDominates){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,remoteValue);changed=true;dirty.delete(k);serverMerged.delete(k);meta.times[k]=remoteTime;if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
       const knownBase=Math.max(0,Number(meta.baseRevisions[k])||0);
-      if(knownBase){dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now(),baseRevision:knownBase});continue;}
+      if(knownBase){
+        const rebased=remoteHasMoreProgress(k,current,remoteValue)&&rowRevision?rowRevision:knownBase;
+        if(rebased===rowRevision&&rowRevision)meta.baseRevisions[k]=rowRevision;
+        dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now(),baseRevision:rebased});continue;
+      }
       if(remoteHasMoreProgress(k,current,remoteValue)){const updatedAt=Math.max(Date.now(),localTime,remoteTime)+1;meta.times[k]=updatedAt;if(rowRevision)meta.baseRevisions[k]=rowRevision;dirty.set(k,{value:current,deleted:false,updatedAt,baseRevision:rowRevision});continue;}
       dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now(),baseRevision:0});continue;
      }
