@@ -1,7 +1,15 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.11';
+const VERSION='1.0.12';
+// Localhost, file previews and QA origins never participate in the official campaign.
+// This must run before patching localStorage or scheduling any remote request.
+if(location.origin!=='https://adrianxds-ads.github.io'){
+ window.AdrianSync=Object.freeze({version:VERSION,mode:'isolated-preview',baselineChecked:()=>true,
+  pull:async()=>false,flush:async()=>true,recover:async()=>({restored:0,protected:0}),
+  status:()=>{},deviceId:'isolated-preview'});
+ return;
+}
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -14,7 +22,7 @@ const nativeClear=Storage.prototype.clear;
 let applying=false,flushTimer=0,pullTimer=0,flushing=false,baselineReady=false;
 const dirty=new Map();
 const serverMerged=new Set();
-const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1','keywordSpeakingStatsV1']);
+const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','classroom_b2_state_v3','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1','keywordSpeakingStatsV1']);
 // Explicit recovery only: restore study data, never general settings, credentials or unrelated applications.
 const RECOVERY_KEY=/^(?:adaptive_|pizarras_state_v1$|classroom_b2_state_v3$|cambridgeB2ExerciseStatsV3$|keywordSpeakingStatsV1$|b2_mcc_state_v1$|adrian_hub_(?:stars|oca|path_game)|adrian_language_game_v1$|adrian_github_garden_v1$|adrianEasyCatalanTaskSessionsV1$)/;
 function recoveryDominates(key,remote,local){
@@ -66,6 +74,8 @@ function progressScore(value,key){
   // Never mistake legacy adaptive difficulty or level for completed study progress.
   if(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1'].includes(key))return{sessions:Number(x.sessions)||0,totalAttempts:Number(x.totalAttempts)||0};
   if(key==='adaptive_phrasal_verbs_v1')return{sessions:Number(x.sessions)||0,answers:Number(x.answers)||0,studySec:Number(x.studySec)||0};
+  // Classroom v3 uses IndexedDB-backed virtual localStorage: compare actual study evidence.
+  if(key==='classroom_b2_state_v3')return{sessions:Number(x.sessions)||0,answers:Number(x.answers)||0,classSessions:Number(x.classSessions)||0,quickSessions:Number(x.quickSessions)||0};
   return Object.fromEntries(['level','sessions','totalAttempts','answers','studySec','stars','totalGold','turns'].map(k=>[k,Number(x[k])||0]));
  }catch{return null;}
 }
@@ -171,7 +181,12 @@ async function flush(){
 async function pull(initial=false,recover=false){
  clearTimeout(pullTimer);pullTimer=0;status('☁ sincronizando…','busy');
  try{
-  const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}}
+  const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}
+    // Classroom v3 lives in IndexedDB and is intentionally absent from localStorage enumeration.
+    // Include its virtual value in baseline discovery so a real saved state can sync once.
+    const classroom=window.ClassroomProgress?.getItem?.();
+    if(classroom!==null&&classroom!==undefined)before.set('classroom_b2_state_v3',classroom);
+  }
   const seed=initial&&!localStorage.getItem(BASELINE_KEY),full=recover||!baselineReady||(initial&&(!localStorage.getItem(RECONCILE_KEY)||seed)),since=full?0:meta.revision;
   const r=await fetch(ENDPOINT+'/changes?since='+encodeURIComponent(since),{mode:'cors',cache:'no-store',targetAddressSpace:'local'});if(!r.ok)throw new Error('HTTP '+r.status);
   const x=await r.json(),entries=x.entries||{};let changed=false,restored=0,protectedCount=0;
@@ -241,13 +256,17 @@ async function pull(initial=false,recover=false){
   if(full)try{nativeSet.call(localStorage,RECONCILE_KEY,'1');}catch{}
   if(seed)try{nativeSet.call(localStorage,BASELINE_KEY,'1');}catch{}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
-  if(initial){for(const [k,v] of before){if(!(k in entries)&&!meta.times[k])mark(k,v,false);}}
+  // A saved Classroom IDB record that is absent on the server needs its first
+  // upload even when an earlier offline attempt already set a local timestamp.
+  if(initial){for(const [k,v] of before){if(!(k in entries)&&!dirty.has(k)&&(!meta.times[k]||k==='classroom_b2_state_v3'))mark(k,v,false);}}
   status(recover?'☁ progreso recuperado: '+restored+' registros':'☁ sincronizado','ok');
   if(changed){
     window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));
     // Refresh an idle application's in-memory state after a late reconnection too.
     const game=document.getElementById('gameScreen'),idle=!game||game.classList.contains('hidden');
     const revKey='adrian_sync_reloaded_revision_110';
+    // A remotely recovered Classroom snapshot must be committed to IndexedDB before reload.
+    if(Object.prototype.hasOwnProperty.call(entries,'classroom_b2_state_v3'))await window.ClassroomProgress?.flush?.();
     if(idle&&sessionStorage.getItem(revKey)!==String(meta.revision)){
       sessionStorage.setItem(revKey,String(meta.revision));saveMeta();location.reload();
     }else if(!idle)status('☁ progreso recuperado; termina la partida y recarga','conflict');
