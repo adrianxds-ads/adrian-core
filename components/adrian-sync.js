@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.9';
+const VERSION='1.0.10';
 const ENDPOINT='https://adrin.tail8fd071.ts.net/hub-sync';
 const META_KEY='adrian_sync_meta_v1';
 const DEVICE_KEY='adrian_sync_device_v1';
@@ -11,7 +11,7 @@ const STORED_PREFIX='ADRIAN:GZIP:1:';
 const nativeSet=Storage.prototype.setItem;
 const nativeRemove=Storage.prototype.removeItem;
 const nativeClear=Storage.prototype.clear;
-let applying=false,flushTimer=0,pullTimer=0,flushing=false;
+let applying=false,flushTimer=0,pullTimer=0,flushing=false,baselineReady=false;
 const dirty=new Map();
 const serverMerged=new Set();
 const GUARDED_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1','adaptive_phrasal_verbs_v1','adaptive_hoti0108_v1','pizarras_state_v1','cambridgeB2ExerciseStatsV3','adrian_hub_stars_v1','adrian_hub_oca_v1','adrian_hub_path_game_v1','keywordSpeakingStatsV1']);
@@ -63,6 +63,9 @@ function progressScore(value,key){
   if(key==='cambridgeB2ExerciseStatsV3')return Array.isArray(x.attempts)?{attempts:x.attempts.length}:null;
   if(key==='keywordSpeakingStatsV1'){const sessions=Array.isArray(x.sessions)?x.sessions:[],items=x.items&&typeof x.items==='object'?Object.values(x.items):[];return{sessions:sessions.length,attempts:items.reduce((n,a)=>n+(Number(a?.attempts)||0),0),points:items.reduce((n,a)=>n+(Number(a?.points)||0),0),durationSec:sessions.reduce((n,a)=>n+(Number(a?.durationSec)||0),0)};}
   if(key==='adaptive_hoti0108_v1'){const s=x.studyGame;if(!s||typeof s!=='object')return null;return{rounds:(s.roundHistory||[]).length,answers:Object.values(s.attempts||{}).reduce((n,a)=>n+(Number(a.count)||0),0)};}
+  // Never mistake legacy adaptive difficulty or level for completed study progress.
+  if(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_verbs_catala_campaign1_v1'].includes(key))return{sessions:Number(x.sessions)||0,totalAttempts:Number(x.totalAttempts)||0};
+  if(key==='adaptive_phrasal_verbs_v1')return{sessions:Number(x.sessions)||0,answers:Number(x.answers)||0,studySec:Number(x.studySec)||0};
   return Object.fromEntries(['level','sessions','totalAttempts','answers','studySec','stars','totalGold','turns'].map(k=>[k,Number(x[k])||0]));
  }catch{return null;}
 }
@@ -72,7 +75,12 @@ function progressRegresses(key,currentValue,incomingValue){
  if(!a)return false;if(!b)return true;
  return Object.keys(a).some(k=>b[k]<a[k]);
 }
-function remoteHasMoreProgress(key,remoteValue,localValue){return GUARDED_KEYS.has(key)&&progressRegresses(key,remoteValue,localValue)&&!progressRegresses(key,localValue,remoteValue);}
+function remoteHasMoreProgress(key,remoteValue,localValue){
+ if(GUARDED_KEYS.has(key)&&progressRegresses(key,remoteValue,localValue)&&!progressRegresses(key,localValue,remoteValue))return true;
+ // Preserve the legacy Catalan difficulty when both snapshots contain zero completed sessions.
+ if(key==='adaptive_verbs_catala_campaign1_v1')try{const a=JSON.parse(decodeStored(remoteValue)),b=JSON.parse(decodeStored(localValue));return Number(a.sessions)===0&&Number(b.sessions)===0&&Number(a.totalAttempts)===0&&Number(b.totalAttempts)===0&&Number(a.level)>Number(b.level);}catch{}
+ return false;
+}
 function encodeRecoveryCopy(value){
  if(typeof value!=='string'||value.length<32768||!window.pako)return value;
  try{
@@ -112,10 +120,13 @@ try{const saved=JSON.parse(localStorage.getItem(META_KEY)||'{}').pending||{};for
 function saveMeta(){try{nativeSet.call(localStorage,META_KEY,JSON.stringify({...meta,pending:Object.fromEntries(dirty)}));}catch{}}
 function status(text,kind='ok'){
  window.dispatchEvent(new CustomEvent('adrian-sync-status',{detail:{text,kind,revision:meta.revision}}));
- if(!location.pathname.startsWith('/adrian-hub'))return;
+ const hub=location.pathname.startsWith('/adrian-hub');
+ const study=/^\/(?:adaptive-english|b2-multiple-choice-cloze|adaptive-verbs-catala|adaptive-phrasal-verbs)\//.test(location.pathname);
+ if(!hub&&!(study&&(kind==='offline'||kind==='conflict'))){document.getElementById('adrianSyncStatus')?.remove();return;}
+ if(study&&!hub&&kind==='offline')text='⚠ Sync inaccesible: el progreso puede estar incompleto';
  if(!document.body){document.addEventListener('DOMContentLoaded',()=>status(text,kind),{once:true});return;}
  let el=document.getElementById('adrianSyncStatus');
- if(!el){el=document.createElement('div');el.id='adrianSyncStatus';el.style.cssText='position:fixed;right:8px;bottom:8px;z-index:9999;padding:5px 8px;border-radius:999px;background:rgba(9,18,16,.82);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);color:#dce9e2;font:800 9px/1.1 system-ui,sans-serif;letter-spacing:.04em;pointer-events:none;opacity:.86';document.body.appendChild(el);}
+ if(!el){el=document.createElement('div');el.id='adrianSyncStatus';el.style.cssText='position:fixed;right:8px;bottom:8px;z-index:9999;padding:5px 8px;border-radius:999px;background:rgba(9,18,16,.94);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:#dce9e2;font:800 9px/1.1 system-ui,sans-serif;letter-spacing:.04em;pointer-events:none;opacity:.86';document.body.appendChild(el);}
  el.textContent=text;el.dataset.kind=kind;
 }
 function mark(key,value,deleted=false){
@@ -136,7 +147,14 @@ async function bodyFor(payload){
  return{body:text,headers:{'Content-Type':'application/json'}};
 }
 async function flush(){
- clearTimeout(flushTimer);flushTimer=0;if(!dirty.size)return true;if(flushing)return false;flushing=true;
+ clearTimeout(flushTimer);flushTimer=0;if(!dirty.size)return true;if(flushing)return false;
+ // Never upload a fresh/blank study record before the remote baseline has been checked.
+ if(!baselineReady&&[...dirty.keys()].some(k=>GUARDED_KEYS.has(k))){
+   const ready=await pull(true);
+   if(!ready||!baselineReady){clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
+   if(!dirty.size)return true;
+ }
+ flushing=true;
  const sentRows=new Map(dirty),changes=Object.fromEntries(sentRows),sentKeys=Object.keys(changes);status('☁ guardando…','busy');
  try{
   const enc=await bodyFor({deviceId:meta.deviceId,changes});
@@ -154,7 +172,7 @@ async function pull(initial=false,recover=false){
  clearTimeout(pullTimer);pullTimer=0;status('☁ sincronizando…','busy');
  try{
   const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}}
-  const seed=initial&&!localStorage.getItem(BASELINE_KEY),full=recover||(initial&&(!localStorage.getItem(RECONCILE_KEY)||seed)),since=full?0:meta.revision;
+  const seed=initial&&!localStorage.getItem(BASELINE_KEY),full=recover||!baselineReady||(initial&&(!localStorage.getItem(RECONCILE_KEY)||seed)),since=full?0:meta.revision;
   const r=await fetch(ENDPOINT+'/changes?since='+encodeURIComponent(since),{mode:'cors',cache:'no-store',targetAddressSpace:'local'});if(!r.ok)throw new Error('HTTP '+r.status);
   const x=await r.json(),entries=x.entries||{};let changed=false,restored=0,protectedCount=0;
   applying=true;
@@ -193,11 +211,13 @@ async function pull(initial=false,recover=false){
     }
     if(GUARDED_KEYS.has(k)&&!row.deleted&&typeof remoteValue==='string'){
      if(current===remoteValue){if(dirty.has(k)&&sameStored(dirty.get(k).value,current))dirty.delete(k);meta.times[k]=Math.max(localTime,remoteTime);if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
-     if(dirty.has(k))continue;
+     const remoteDominates=current!==null&&remoteHasMoreProgress(k,remoteValue,current);
+     // A locally queued zero must never block recovery of a strictly richer remote snapshot.
+     if(dirty.has(k)&&!remoteDominates)continue;
      if(current!==null){
+      if(remoteDominates){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,remoteValue);changed=true;dirty.delete(k);serverMerged.delete(k);meta.times[k]=remoteTime;if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
       const knownBase=Math.max(0,Number(meta.baseRevisions[k])||0);
       if(knownBase){dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now(),baseRevision:knownBase});continue;}
-      if(remoteHasMoreProgress(k,remoteValue,current)){if(!preserve(k,current))continue;nativeSet.call(localStorage,k,remoteValue);changed=true;meta.times[k]=remoteTime;if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
       if(remoteHasMoreProgress(k,current,remoteValue)){const updatedAt=Math.max(Date.now(),localTime,remoteTime)+1;meta.times[k]=updatedAt;if(rowRevision)meta.baseRevisions[k]=rowRevision;dirty.set(k,{value:current,deleted:false,updatedAt,baseRevision:rowRevision});continue;}
       dirty.set(k,{value:current,deleted:false,updatedAt:localTime||Date.now(),baseRevision:0});continue;
      }
@@ -210,13 +230,22 @@ async function pull(initial=false,recover=false){
     meta.times[k]=remoteTime;if(GUARDED_KEYS.has(k)&&rowRevision)meta.baseRevisions[k]=rowRevision;
    }
   }finally{applying=false;}
+  if(full)baselineReady=true;
   if(dirty.size&&!flushTimer)flushTimer=setTimeout(flush,5000);
   if(full)try{nativeSet.call(localStorage,RECONCILE_KEY,'1');}catch{}
   if(seed)try{nativeSet.call(localStorage,BASELINE_KEY,'1');}catch{}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
   if(initial){for(const [k,v] of before){if(!(k in entries)&&!meta.times[k])mark(k,v,false);}}
   status(recover?'☁ progreso recuperado: '+restored+' registros':'☁ sincronizado','ok');
-  if(changed){window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));if(initial&&!sessionStorage.getItem('adrian_sync_reload_v2')){sessionStorage.setItem('adrian_sync_reload_v2','1');saveMeta();location.reload();}}
+  if(changed){
+    window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));
+    // Refresh an idle application's in-memory state after a late reconnection too.
+    const game=document.getElementById('gameScreen'),idle=!game||game.classList.contains('hidden');
+    const revKey='adrian_sync_reloaded_revision_110';
+    if(idle&&sessionStorage.getItem(revKey)!==String(meta.revision)){
+      sessionStorage.setItem(revKey,String(meta.revision));saveMeta();location.reload();
+    }else if(!idle)status('☁ progreso recuperado; termina la partida y recarga','conflict');
+  }
   return recover?{restored,protected:protectedCount}:true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
  finally{pullTimer=setTimeout(()=>pull(false),30000);}
