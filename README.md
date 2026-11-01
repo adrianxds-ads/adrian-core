@@ -69,3 +69,8 @@ Los rechazos repetidos por una `baseRevision` caducada no deben retransmitirse i
 **Corrección 1.0.14:** el descarte automático de hasta dos sesiones se limita a las colas residuales fechadas antes del 31/10/2026 a las 21:42 UTC y con revisión base obsoleta. Una sesión nueva realizada sin conexión, aunque sea solo una, se conserva y se sincroniza si supera coherentemente al servidor.
 
 Regresión sintética: `python scripts/test_stale_sync_conflict.py` (incluye reconexión futura sin perder una sesión). La comprobación de la partida real de Pixel tras la publicación es una verificación distinta; este test no accede a datos del usuario.
+
+## Sync 1.0.15 · colas de estudio y conflictos retenidos (01/11/2026)
+Causa comprobada en el registro del servidor: rechazos reiterados de campañas distintas desde una pestaña de estudio. Como las aplicaciones comparten origen, antes podían reenviarse campañas ajenas. Cada pantalla de estudio solo procesa ahora su propia campaña; al guardar metadatos compartidos conserva las colas de las demás aplicaciones. Si un registro protegido continúa rechazado tras conciliarlo, se retiene en la misma entrada pendiente sin crear copias ni reintentos temporizados. Se conserva el progreso local y se vuelve a intentar al completar una nueva sesión. Guardado local NO implica sincronización con el servidor; no se fusionan ni eliminan automáticamente ramas incompatibles.
+
+Pruebas aisladas sin acceder al Pixel ni al servidor real: `python scripts/test_study_conflict_isolation.py`, `python scripts/test_stale_sync_conflict.py` y `python scripts/test_classroom_sync_virtual.py`. Publicación y activación en dispositivos pendientes; requieren actualización coordinada de cachés y verificación posterior.

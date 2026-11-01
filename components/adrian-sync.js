@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.14';
+const VERSION='1.0.15';
 // Localhost, file previews and QA origins never participate in the official campaign.
 // This must run before patching localStorage or scheduling any remote request.
 if(location.origin!=='https://adrianxds-ads.github.io'){
@@ -16,6 +16,14 @@ const DEVICE_KEY='adrian_sync_device_v1';
 const RECONCILE_KEY='adrian_sync_reconciled_102';
 const BASELINE_KEY='adrian_sync_baselines_107';
 const STORED_PREFIX='ADRIAN:GZIP:1:';
+// A quiz only owns its own campaign. A pending Grammar save must not be
+// retransmitted by Cloze (all apps share this origin's localStorage).
+const APP_OWNER=location.pathname.startsWith('/adaptive-english/')?'adaptive_english_campaign1_v1':
+ location.pathname.startsWith('/b2-multiple-choice-cloze/')?'adaptive_b2_cloze_campaign1_v1':
+ location.pathname.startsWith('/adaptive-phrasal-verbs/')?'adaptive_phrasal_verbs_v1':
+ location.pathname.startsWith('/adaptive-pizarras/')?'classroom_b2_state_v3':
+ location.pathname.startsWith('/adaptive-verbs-catala/')?'adaptive_verbs_catala_campaign1_v1':null;
+const CAMPAIGN_KEYS=new Set(['adaptive_english_campaign1_v1','adaptive_b2_cloze_campaign1_v1','adaptive_phrasal_verbs_v1','classroom_b2_state_v3','adaptive_verbs_catala_campaign1_v1']);
 const nativeSet=Storage.prototype.setItem;
 const nativeRemove=Storage.prototype.removeItem;
 const nativeClear=Storage.prototype.clear;
@@ -131,6 +139,9 @@ function eligible(key){
  if(key==='cambioActiveV2')return false;
  return true;
 }
+function inScope(key){
+ return eligible(key)&&(!APP_OWNER||!CAMPAIGN_KEYS.has(key)||key===APP_OWNER);
+}
 function uid(){
  let id='';try{id=localStorage.getItem(DEVICE_KEY)||'';}catch{}
  if(!id){id=(crypto.randomUUID?.()||('hub-'+Math.random().toString(36).slice(2)+'-'+Date.now().toString(36)));try{nativeSet.call(localStorage,DEVICE_KEY,id);}catch{}}
@@ -142,7 +153,14 @@ function loadMeta(){
 }
 let meta=loadMeta();
 try{const saved=JSON.parse(localStorage.getItem(META_KEY)||'{}').pending||{};for(const [k,row] of Object.entries(saved))if(eligible(k)&&row&&typeof row==='object')dirty.set(k,{...row,baseRevision:Math.max(0,Number(row.baseRevision)||0)});}catch{}
-function saveMeta(){try{nativeSet.call(localStorage,META_KEY,JSON.stringify({...meta,pending:Object.fromEntries(dirty)}));}catch{}}
+function saveMeta(){try{
+ const existing=JSON.parse(localStorage.getItem(META_KEY)||'{}');
+ // Shared origin, shared metadata: preserve other apps' queues when saving.
+ // Never overwrite Grammar's pending record from an open Cloze tab.
+ const other=Object.fromEntries(Object.entries(existing?.pending||{}).filter(([k])=>eligible(k)&&!inScope(k)));
+ const own=Object.fromEntries([...dirty].filter(([k])=>inScope(k)));
+ nativeSet.call(localStorage,META_KEY,JSON.stringify({...meta,pending:{...other,...own}}));
+}catch{}}
 function status(text,kind='ok'){
  window.dispatchEvent(new CustomEvent('adrian-sync-status',{detail:{text,kind,revision:meta.revision}}));
  const hub=location.pathname.startsWith('/adrian-hub');
@@ -155,8 +173,16 @@ function status(text,kind='ok'){
  el.textContent=text;el.dataset.kind=kind;
 }
 function mark(key,value,deleted=false){
- if(!eligible(key)||applying)return;
- const updatedAt=Math.max(Date.now(),(Number(meta.times[key])||0)+1),old=dirty.get(key),baseRevision=old?Math.max(0,Number(old.baseRevision)||0):Math.max(0,Number(meta.baseRevisions[key])||0);meta.times[key]=updatedAt;dirty.set(key,{value:deleted?null:String(value),deleted,updatedAt,baseRevision});saveMeta();
+ if(!inScope(key)||applying)return;
+ const updatedAt=Math.max(Date.now(),(Number(meta.times[key])||0)+1),old=dirty.get(key),baseRevision=old?Math.max(0,Number(old.baseRevision)||0):Math.max(0,Number(meta.baseRevisions[key])||0);
+ // A rejected branch stays local until a NEW completed session is recorded.
+ // Editing an answer or reloading the same snapshot must not restart the loop.
+ const prior=old?.held?progressScore(old.value,key):null,now=old?.held?progressScore(String(value),key):null;
+ const newSession=!!(prior&&now&&Number(now.sessions)>Number(old.heldSessions??prior.sessions));
+ const held=!!old?.held&&!deleted&&!newSession;
+ meta.times[key]=updatedAt;
+ dirty.set(key,{value:deleted?null:String(value),deleted,updatedAt,baseRevision,...(held?{held:true,heldSessions:Number(old.heldSessions??prior?.sessions??0)}:{})});saveMeta();
+ if(held)return;
  clearTimeout(flushTimer);flushTimer=setTimeout(flush,5000);
 }
 Storage.prototype.setItem=function(key,value){const r=nativeSet.call(this,key,value);if(this===localStorage)mark(String(key),String(value),false);return r;};
@@ -174,13 +200,15 @@ async function bodyFor(payload){
 async function flush(){
  clearTimeout(flushTimer);flushTimer=0;if(!dirty.size)return true;if(flushing)return false;
  // Never upload a fresh/blank study record before the remote baseline has been checked.
- if(!baselineReady&&[...dirty.keys()].some(k=>GUARDED_KEYS.has(k))){
+ if(!baselineReady&&[...dirty.keys()].some(k=>inScope(k)&&GUARDED_KEYS.has(k))){
    const ready=await pull(true);
    if(!ready||!baselineReady){clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}
    if(!dirty.size)return true;
  }
+ const sentRows=new Map([...dirty].filter(([k,row])=>inScope(k)&&!row.held));
+ if(!sentRows.size){status('○ progreso guardado en este dispositivo','local');return false;}
  flushing=true;
- const sentRows=new Map(dirty),changes=Object.fromEntries(sentRows),sentKeys=Object.keys(changes);status('☁ guardando…','busy');
+ const changes=Object.fromEntries(sentRows),sentKeys=Object.keys(changes);status('☁ guardando…','busy');
  try{
   const enc=await bodyFor({deviceId:meta.deviceId,changes});
   const r=await fetch(ENDPOINT+'/sync',{method:'POST',mode:'cors',cache:'no-store',targetAddressSpace:'local',headers:enc.headers,body:enc.body});if(!r.ok)throw new Error('HTTP '+r.status);
@@ -189,14 +217,33 @@ async function flush(){
   for(const k of acknowledged)if(dirty.get(k)===sentRows.get(k)){dirty.delete(k);serverMerged.delete(k);if(GUARDED_KEYS.has(k)&&revision)meta.baseRevisions[k]=revision;}
   for(const k of (Array.isArray(x.mergedKeys)?x.mergedKeys:[]))if(dirty.get(k)===sentRows.get(k))serverMerged.add(k);
   const accepted=Number(x.accepted),needsReconcile=(Number.isFinite(accepted)&&accepted<sentKeys.length)||(Array.isArray(x.mergedKeys)&&x.mergedKeys.length>0)||(Array.isArray(x.conflictKeys)&&x.conflictKeys.length>0);
-  if(needsReconcile){meta.revision=0;saveMeta();const reconciled=await pull(false);if(!reconciled)throw new Error('reconcile-failed');if(dirty.size){status('○ conflicto preservado localmente','conflict');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}status('☁ sincronizado','ok');return true;}
+  if(needsReconcile){
+    meta.revision=0;saveMeta();const reconciled=await pull(false);
+    if(!reconciled)throw new Error('reconcile-failed');
+    // A key still rejected after reconciliation is held *inside its existing
+    // pending metadata*, not repeatedly uploaded or copied to ghost saves.
+    const rejected=new Set(Array.isArray(x.conflictKeys)?x.conflictKeys:[]);
+    for(const k of rejected){
+      const row=dirty.get(k),was=sentRows.get(k);
+      if(!row||!was||row.held)continue;
+      if(Number(row.baseRevision)!==Number(was.baseRevision))continue; // a genuine rebase deserves one retry
+      const snapshot=progressScore(row.value,k);
+      dirty.set(k,{...row,held:true,heldSessions:Number(snapshot?.sessions)||0});
+    }
+    saveMeta();
+    if([...dirty].some(([k,row])=>inScope(k)&&!row.held)){
+      status('○ sincronización pendiente; progreso local conservado','local');
+      clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;
+    }
+    status(dirty.size?'○ progreso guardado en este dispositivo':'☁ sincronizado',dirty.size?'local':'ok');return !dirty.size;
+  }
   meta.revision=Math.max(meta.revision,revision);saveMeta();status('☁ sincronizado','ok');return true;
  }catch(e){status('○ guardado local','offline');clearTimeout(flushTimer);flushTimer=setTimeout(flush,30000);return false;}finally{flushing=false;saveMeta();}
 }
 async function pull(initial=false,recover=false){
  clearTimeout(pullTimer);pullTimer=0;status('☁ sincronizando…','busy');
  try{
-  const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))before.set(k,localStorage.getItem(k));}
+  const before=new Map();if(initial){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(inScope(k))before.set(k,localStorage.getItem(k));}
     // Classroom v3 lives in IndexedDB and is intentionally absent from localStorage enumeration.
     // Include its virtual value in baseline discovery so a real saved state can sync once.
     const classroom=window.ClassroomProgress?.getItem?.();
@@ -208,7 +255,7 @@ async function pull(initial=false,recover=false){
   applying=true;
   try{
    for(const [k,row] of Object.entries(entries)){
-    if(!eligible(k)||!row||(recover&&!RECOVERY_KEY.test(k)))continue;
+    if(!inScope(k)||!row||(recover&&!RECOVERY_KEY.test(k)))continue;
     if(row.deleted&&GUARDED_KEYS.has(k))continue;
     const remoteTime=Number(row.updatedAt)||0,localTime=Number(meta.times[k])||0,rowRevision=Math.max(0,Number(row.revision)||Number(x.revision)||0);
     const current=localStorage.getItem(k),remoteValue=!row.deleted&&typeof row.value==='string'?decodeStored(row.value):row.value;
@@ -248,6 +295,9 @@ async function pull(initial=false,recover=false){
     if(GUARDED_KEYS.has(k)&&!row.deleted&&typeof remoteValue==='string'){
      if(current===remoteValue){if(dirty.has(k)&&sameStored(dirty.get(k).value,current))dirty.delete(k);meta.times[k]=Math.max(localTime,remoteTime);if(rowRevision)meta.baseRevisions[k]=rowRevision;continue;}
      const remoteDominates=current!==null&&remoteHasMoreProgress(k,remoteValue,current);
+     // Quarantined local branches are never replayed on a timer. A strictly
+     // richer canonical server snapshot may still safely resolve them.
+     if(dirty.get(k)?.held&&!remoteDominates)continue;
      // Resolve a stale baseline before retrying. Never replay the same rejected
      // revision forever: rebase an objectively richer local snapshot onto the
      // current remote revision, or discard a bounded residual (<=2 sessions).
@@ -287,14 +337,15 @@ async function pull(initial=false,recover=false){
    }
   }finally{applying=false;}
   if(full)baselineReady=true;
-  if(dirty.size&&!flushTimer)flushTimer=setTimeout(flush,5000);
+  if([...dirty].some(([k,row])=>inScope(k)&&!row.held)&&!flushTimer)flushTimer=setTimeout(flush,5000);
   if(full)try{nativeSet.call(localStorage,RECONCILE_KEY,'1');}catch{}
   if(seed)try{nativeSet.call(localStorage,BASELINE_KEY,'1');}catch{}
   meta.revision=Math.max(meta.revision,Number(x.revision)||0);saveMeta();
   // A saved Classroom IDB record that is absent on the server needs its first
   // upload even when an earlier offline attempt already set a local timestamp.
   if(initial){for(const [k,v] of before){if(!(k in entries)&&!dirty.has(k)&&(!meta.times[k]||k==='classroom_b2_state_v3'))mark(k,v,false);}}
-  status(recover?'☁ progreso recuperado: '+restored+' registros':'☁ sincronizado','ok');
+  const ownHeld=[...dirty].some(([k,row])=>inScope(k)&&row.held);
+  status(recover?'☁ progreso recuperado: '+restored+' registros':ownHeld?'○ progreso conservado en el dispositivo':'☁ sincronizado',ownHeld?'local':'ok');
   if(changed){
     window.dispatchEvent(new CustomEvent('adrian-sync-updated',{detail:{initial,revision:meta.revision,keys:Object.keys(entries)}}));
     // Refresh an idle application's in-memory state after a late reconnection too.
@@ -314,6 +365,6 @@ window.addEventListener('storage',e=>{if(e.storageArea===localStorage&&eligible(
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull(false);else flush();});
 window.addEventListener('pagehide',()=>{flush();});
 window.AdrianSync=Object.freeze({version:VERSION,pull,recover:()=>pull(true,true),flush,status,baselineChecked:()=>baselineReady,endpoint:ENDPOINT,deviceId:meta.deviceId});
-if(dirty.size)flushTimer=setTimeout(flush,5000);
+if([...dirty].some(([k,row])=>inScope(k)&&!row.held))flushTimer=setTimeout(flush,5000);
 setTimeout(()=>pull(true),0);
 })();
