@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.AdrianSync)return;
-const VERSION='1.0.15';
+const VERSION='1.0.16';
 // Localhost, file previews and QA origins never participate in the official campaign.
 // This must run before patching localStorage or scheduling any remote request.
 if(location.origin!=='https://adrianxds-ads.github.io'){
@@ -164,9 +164,9 @@ function saveMeta(){try{
 function status(text,kind='ok'){
  window.dispatchEvent(new CustomEvent('adrian-sync-status',{detail:{text,kind,revision:meta.revision}}));
  const hub=location.pathname.startsWith('/adrian-hub');
- const study=/^\/(?:adaptive-english|b2-multiple-choice-cloze|adaptive-verbs-catala|adaptive-phrasal-verbs)\//.test(location.pathname);
- if(!hub&&!(study&&(kind==='offline'||kind==='conflict'||kind==='blocked'))){document.getElementById('adrianSyncStatus')?.remove();return;}
- if(study&&!hub&&kind==='offline')text='⚠ Sync inaccesible: el progreso puede estar incompleto';
+ // Quiz status is diagnostic only, including offline, conflict and blocked states.
+ // Keep emitting events and retrying saves without creating an overlay in games.
+ if(!hub){document.getElementById('adrianSyncStatus')?.remove();return;}
  if(!document.body){document.addEventListener('DOMContentLoaded',()=>status(text,kind),{once:true});return;}
  let el=document.getElementById('adrianSyncStatus');
  if(!el){el=document.createElement('div');el.id='adrianSyncStatus';el.style.cssText='position:fixed;right:8px;bottom:8px;z-index:9999;padding:5px 8px;border-radius:999px;background:rgba(9,18,16,.94);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:#dce9e2;font:800 9px/1.1 system-ui,sans-serif;letter-spacing:.04em;pointer-events:none;opacity:.86';document.body.appendChild(el);}
